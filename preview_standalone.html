@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<!--
+  =========================================================================
+  เครื่องมือคำนวณขนาดยาฆ่าเชื้อตามการทำงานของไต
+  =========================================================================
+  ออกแบบและพัฒนาโดย: ภญ.ธมลวรรณ จันทร์แก้ว (โรงพยาบาลสันกำแพง)
+  ระบบนี้ถือเป็นทรัพย์สินทางปัญญาของผู้พัฒนา ห้ามคัดลอก ดัดแปลง หรือนำไปใช้โดยไม่ได้รับอนุญาต
+  ลิขสิทธิ์ © 2569 (2026) สงวนสิทธิ์ทุกประการ
+  =========================================================================
+-->
+
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#1a1a1a; --bg:#f2e6c9; --card:#fffdf5; --acc:#ffd23f; --acctx:#1a1a1a; --hl:#ffe488; --muted:#6a6455;
+    --crcl:#d6402f; --amberbg:#ffe1a0; --ambertx:#5c3d00; --redbg:#fdcfca; --redtx:#8f2018;}
+  *{box-sizing:border-box}
+  body{font-family:'Kanit',-apple-system,'Segoe UI',Tahoma,sans-serif;margin:0;color:var(--ink);font-size:16px;line-height:1.5;font-weight:400;
+    background-color:var(--bg);background-image:radial-gradient(circle, rgba(0,0,0,0.07) 1.3px, transparent 1.3px);background-size:20px 20px;}
+  body.iv{--acc:#ffd23f; --acctx:#1a1a1a; --hl:#ffe488}
+  body.tb{--acc:#7a3e9d; --acctx:#ffffff; --hl:#e7dcf3}
+  .wrap{max-width:640px;margin:0 auto;padding:18px}
+  h1{font-size:20px;font-weight:600;margin:4px 0 14px;letter-spacing:.2px}
+  .tabs{display:flex;gap:10px;margin-bottom:14px}
+  .tabs button{flex:1;height:50px;font-family:inherit;font-size:16px;font-weight:600;border:3px solid var(--ink);background:#fff;border-radius:12px;cursor:pointer;color:var(--ink);box-shadow:4px 4px 0 var(--ink);transition:transform .06s,box-shadow .06s}
+  .tabs button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .tabs button.on{background:var(--acc);color:var(--acctx)}
+  .card{background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:6px 6px 0 var(--ink)}
+  label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+  .opt{font-weight:400;color:var(--muted);font-size:13px}
+  input[type=number],input[type=text]{width:100%;height:48px;font-family:inherit;font-size:17px;font-weight:500;padding:8px 12px;border:2.5px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink)}
+  input[type=number]:focus,input[type=text]:focus{outline:none;box-shadow:4px 4px 0 var(--acc)}
+  select{width:100%;height:48px;font-family:inherit;font-size:16px;font-weight:500;padding:8px 10px;border:2.5px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink)}
+  select:focus{outline:none;box-shadow:4px 4px 0 var(--acc)}
+  .search{height:48px;font-size:16px;font-weight:500}
+  .combo{position:relative}
+  .suggest{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:#fff;border:2.5px solid var(--ink);border-radius:10px;box-shadow:5px 5px 0 var(--ink);max-height:280px;overflow:auto}
+  .suggest .item{padding:11px 12px;border-bottom:2px solid var(--ink);cursor:pointer;font-weight:500;font-size:15px}
+  .suggest .item:last-child{border-bottom:none}
+  .suggest .item:hover,.suggest .item.act{background:var(--hl)}
+  .suggest .empty{padding:11px 12px;color:var(--muted)}
+  .segbtns{display:flex;gap:10px}
+  .segbtns button{flex:1;height:48px;font-family:inherit;font-size:15px;font-weight:600;border:2.5px solid var(--ink);background:#fff;border-radius:10px;cursor:pointer;color:var(--ink);box-shadow:3px 3px 0 var(--ink);transition:transform .06s,box-shadow .06s}
+  .segbtns button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .segbtns button.on{background:var(--acc);color:var(--acctx)}
+  #renal.off{opacity:.4;pointer-events:none}
+  .go{width:100%;height:56px;font-family:inherit;font-size:18px;font-weight:700;color:var(--acctx);background:var(--acc);border:3px solid var(--ink);border-radius:12px;cursor:pointer;margin-top:18px;box-shadow:5px 5px 0 var(--ink);transition:transform .07s,box-shadow .07s;display:flex;align-items:center;justify-content:center;gap:10px}
+  .go:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .go:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+  .go .arw{transition:transform .15s}
+  .go:hover .arw{transform:translateX(5px)}
+  .flag{font-size:13.5px;font-weight:500;padding:10px 12px;border:2.5px solid var(--ink);border-radius:10px;margin:10px 0}
+  .flag.amber{background:var(--amberbg);color:var(--ambertx)}
+  .flag.red{background:var(--redbg);color:var(--redtx)}
+  .crcl{font-size:15px}.crcl b{font-size:26px;font-weight:700;color:var(--crcl)}
+  .reg{border:2.5px solid var(--ink);border-radius:12px;padding:14px;margin-top:14px;box-shadow:4px 4px 0 var(--ink);background:#fff}
+  .regname{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .medname{font-size:22px;font-weight:700;margin:2px 0 8px;line-height:1.2;display:inline-block;border-bottom:3px solid currentColor;padding-bottom:2px}
+  .band{font-size:13px;color:var(--muted);font-weight:500}
+  .dose{font-size:23px;font-weight:700;margin:5px 0}
+  .helper{font-size:14px;font-weight:500;color:var(--ink);background:var(--hl);border:2px solid var(--ink);padding:6px 10px;border-radius:8px;display:inline-block;margin-top:6px}
+  .load{font-size:14px;margin-top:6px;font-weight:500}
+  .note{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.55}
+  .usual{font-size:14px;color:var(--muted);margin-top:2px}
+  .more{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:var(--ink);background:#fff;border:2.5px solid var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  td{padding:8px 6px;border-top:2px solid var(--ink);vertical-align:top}
+  tr.hit td{background:var(--hl);font-weight:700}
+  .rrt{display:flex;gap:10px;margin-top:4px}
+  .rrt button{flex:1;height:46px;font-family:inherit;font-size:16px;font-weight:600;border:2.5px solid var(--ink);border-radius:10px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);color:var(--ink)}
+  .rrt .yes{background:#fff} .rrt .no{background:var(--acc);color:var(--acctx)}
+  .foot{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;padding:0 4px 10px}
+  .credit{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.6;padding:10px 8px 30px;border-top:2px solid var(--ink);margin-top:6px}
+  .credit b{font-weight:600;color:var(--ink)}
+  .hide{display:none}
+</style>
+</head>
+<body class="iv">
+<div class="wrap">
+  <h1 id="title">เครื่องมือคำนวณขนาดยาตามการทำงานของไต / น้ำหนัก</h1>
+
+  <div class="tabs">
+    <button type="button" data-m="iv" class="on">ยาปฏิชีวนะฉีด (IV)</button>
+    <button type="button" data-m="tb">ยาวัณโรค (TB)</button>
+  </div>
+
+  <div class="card">
+    <label>เพศ <span class="opt" id="sexopt"></span></label>
+    <div class="segbtns" id="sex">
+      <button type="button" data-v="M" class="on">ชาย</button>
+      <button type="button" data-v="F">หญิง</button>
+    </div>
+    <label>อายุ (ปี)</label>
+    <input type="number" id="age" inputmode="numeric" min="0" placeholder="เช่น 68">
+    <label>น้ำหนัก (กก.) — น้ำหนักจริง</label>
+    <input type="number" id="wt" inputmode="decimal" min="0" placeholder="เช่น 60">
+    <label id="scrlab">Scr (mg/dL)</label>
+    <input type="number" id="scr" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 1.2">
+
+    <!-- IV drug picker (type-to-search combobox) -->
+    <div id="ivpick">
+      <label>ยา</label>
+      <div class="combo">
+        <input type="text" id="drugsearch" class="search" placeholder="พิมพ์ชื่อยา ไทย/อังกฤษ" autocomplete="off">
+        <div id="suggest" class="suggest hide"></div>
+      </div>
+    </div>
+
+    <!-- TB renal control -->
+    <div id="tbpick" class="hide">
+      <label>การทำงานของไต</label>
+      <div class="segbtns" id="renal">
+        <button type="button" data-v="0" class="on">ปกติ (CrCl ≥30)</button>
+        <button type="button" data-v="1">CrCl &lt;30 / ฟอกไต</button>
+      </div>
+      <div class="note" id="renalhint">ใส่ Scr (และเพศ/อายุ) ด้านบนเพื่อให้ระบบช่วยประเมิน CrCl ให้อัตโนมัติ</div>
+    </div>
+
+    <button class="go" id="go">คำนวณ <span class="arw">→</span></button>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="foot" id="foot"></div>
+  <div class="credit">ออกแบบและพัฒนาโดย <b>ภญ.ธมลวรรณ จันทร์แก้ว</b> (โรงพยาบาลสันกำแพง)<br>ลิขสิทธิ์ © 2569 (2026) สงวนสิทธิ์ทุกประการ · ห้ามคัดลอก ดัดแปลง หรือนำไปใช้โดยไม่ได้รับอนุญาต</div>
+</div>
+
+<script>
+var DATA = {"iv": [{"id": "amikacin", "generic": "Amikacin", "syn": "อะมิคาซิน; Amikin", "strength": "500 mg", "usual": "5 mg/kg q 8 h หรือ 7.5 mg/kg q 12 h; HDEI 15-20 mg/kg q 24 h", "basis": "mg_per_kg", "adj": true, "comments": "คิดขนาดตามน้ำหนักจริง (ถ้า TBW >1.2 เท่าของ IBW ใช้ adjusted BW). ผู้เชี่ยวชาญบางท่านให้ขนาดนำ 7.5-10 mg/kg.", "monitor": "ไม่มี TDM ในรพ.: ติดตามการทำงานของไตและการได้ยิน.", "regimens": [{"name": "Conventional (แบ่งหลายครั้ง/วัน)", "segs": [{"lo": 60.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥60): 5 mg/kg q 8 h หรือ 7.5 mg/kg q 12 h", "mgl": 5.0, "mgh": 7.5, "iv": "q 8-12 h", "load": "", "note": ""}, {"lo": 50.0, "hi": 60.0, "dose": "5-7.5 mg/kg q 12 h", "mgl": 5.0, "mgh": 7.5, "iv": "q 12 h", "load": "", "note": ""}, {"lo": 40.0, "hi": 50.0, "dose": "5-7.5 mg/kg q 12 h", "mgl": 5.0, "mgh": 7.5, "iv": "q 12 h", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "5-7.5 mg/kg q 24 h", "mgl": 5.0, "mgh": 7.5, "iv": "q 24 h", "load": "", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "5-7.5 mg/kg q 24 h", "mgl": 5.0, "mgh": 7.5, "iv": "q 24 h", "load": "", "note": ""}, {"lo": 10.0, "hi": 20.0, "dose": "ให้ครั้งเดียว แล้วปรับตามผู้ป่วย", "mgl": 5.0, "mgh": 7.5, "iv": "ครั้งเดียว", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "ให้ครั้งเดียว แล้วปรับตามผู้ป่วย", "mgl": 5.0, "mgh": 7.5, "iv": "ครั้งเดียว", "load": "", "note": ""}]}, {"name": "HDEI (วันละครั้ง)", "segs": [{"lo": 60.0, "hi": 9999.0, "dose": "15-20 mg/kg q 24 h (สูงสุด 30 mg/kg)", "mgl": 15.0, "mgh": 20.0, "iv": "q 24 h", "load": "", "note": ""}, {"lo": 50.0, "hi": 60.0, "dose": "15-20 mg/kg q 36 h", "mgl": 15.0, "mgh": 20.0, "iv": "q 36 h", "load": "", "note": ""}, {"lo": 40.0, "hi": 50.0, "dose": "15-20 mg/kg q 36 h", "mgl": 15.0, "mgh": 20.0, "iv": "q 36 h", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "15-20 mg/kg q 48 h", "mgl": 15.0, "mgh": 20.0, "iv": "q 48 h", "load": "", "note": ""}, {"lo": 0.0, "hi": 30.0, "dose": "ไม่แนะนำสูตร HDEI เมื่อ CrCl <30 — ใช้สูตร Conventional", "mgl": "", "mgh": "", "iv": "", "load": "", "note": "(เพิ่มโดยผู้จัดทำ: ตารางเดิมเว้นว่าง) ตรวจสอบ"}]}]}, {"id": "amoxiclav", "generic": "Amoxicillin/clavulanate", "syn": "ออกเมนติน; Augmentin; co-amoxiclav", "strength": "1.2 g", "usual": "IV 1.2 g q 8 h", "basis": "fixed", "adj": true, "comments": "ขนาดยาในภาวะไตเสื่อมคิดตามส่วน amoxicillin.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 30.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥30): IV 1.2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 30.0, "dose": "เริ่ม 1 g จากนั้น 500 mg q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "เริ่ม 1 g จากนั้น 500 mg q 12-24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "ampicillin", "generic": "Ampicillin", "syn": "แอมพิซิลลิน", "strength": "1 g", "usual": "IV 1-2 g q 6 h (หรือ 2 g q 4 h)", "basis": "fixed", "adj": true, "comments": "การปรับขนาดอ้างอิงความเห็นผู้เชี่ยวชาญ ข้อมูล PK จำกัด.", "monitor": "", "regimens": [{"name": "1-2 g q6h", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥50): 1-2 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 50.0, "dose": "1-2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 15.0, "hi": 30.0, "dose": "1-2 g q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 15.0, "dose": "1-2 g q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "2 g q4h (รุนแรง)", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥50): 2 g q 4 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 50.0, "dose": "2 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 15.0, "hi": 30.0, "dose": "2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 15.0, "dose": "2 g q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "cefazolin", "generic": "Cefazolin", "syn": "เซฟาโซลิน; Ancef", "strength": "1 g", "usual": "IV 1-2 g q 8 h", "basis": "fixed", "adj": true, "comments": "ในการติดเชื้อรุนแรง พิจารณาให้ขนาดเต็มก่อนค่อยลดขนาด.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥50): 1-2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 50.0, "dose": "1-2 g q 8-12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 30.0, "dose": "500 mg-1 g q 12 h (2 g q 12 h ถ้ารุนแรง)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "500 mg-1 g q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "cefotaxime", "generic": "Cefotaxime", "syn": "เซโฟแทกซิม; Claforan", "strength": "1 g", "usual": "1-2 g q 8 h (หรือ q6h / 2 g q4h)", "basis": "fixed", "adj": true, "comments": "แสดง 3 สูตรปกติตามข้อบ่งใช้/ความรุนแรง.", "monitor": "", "regimens": [{"name": "1-2 g q8h", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 1-2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 50.0, "dose": "1-2 g q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "1-2 g q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "1-2 g q6h", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 1-2 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 50.0, "dose": "1-2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "1-2 g q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "2 g q4h (รุนแรง)", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 2 g q 4 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 50.0, "dose": "2 g q 6-8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "2 g q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "ceftazidime", "generic": "Ceftazidime", "syn": "เซฟตาซิดีม; Fortum", "strength": "1 g", "usual": "IV 1 g q 8 h (หรือ 2 g q 8 h)", "basis": "fixed", "adj": true, "comments": "เลือก 1 g หรือ 2 g q8h ตามข้อบ่งใช้/ความรุนแรง (เช่น 2 g q8h สำหรับ Pseudomonas).", "monitor": "", "regimens": [{"name": "1 g q8h", "segs": [{"lo": 51.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 1 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 31.0, "hi": 51.0, "dose": "1 g q 12 h (CrCl 31-50)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 16.0, "hi": 31.0, "dose": "1 g q 24 h (CrCl 16-30)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 16.0, "dose": "500 mg q 24 h (CrCl ≤15)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "2 g q8h (Pseudomonas/รุนแรง)", "segs": [{"lo": 51.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 31.0, "hi": 51.0, "dose": "2 g q 12 h (CrCl 31-50)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 16.0, "hi": 31.0, "dose": "2 g q 24 h (CrCl 16-30)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 16.0, "dose": "1 g q 24 h (CrCl ≤15)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "ciprofloxacin", "generic": "Ciprofloxacin", "syn": "ไซโปรฟลอกซาซิน; Cipro", "strength": "400 mg", "usual": "IV 400 mg q 8-12 h", "basis": "fixed", "adj": true, "comments": "การติดเชื้อรุนแรง: ใช้ความถี่ช่วงสูง. CrCl <30: ให้ขนาดนำ 400 mg ถ้าใช้ 200 mg q 24 h.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 30.0, "hi": 9999.0, "dose": "400 mg q 8-12 h (CrCl ≥30)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 30.0, "dose": "200-400 mg q 12-24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "colistin", "generic": "Colistimethate sodium", "syn": "โคลิสติน; Colistin; CMS", "strength": "150 mg (1 vial=150 mg CBA=4.5 MIU)", "usual": "ขนาดนำ 300 mg CBA = 2 vial แล้วขนาดคงระดับตาม CrCl (แบ่ง 2 ครั้ง)", "basis": "special", "adj": true, "comments": "ขนาดยาเป็น mg CBA (colistin base activity) พร้อมจำนวน vial. แบ่งให้ 2 ครั้ง/วัน. ใช้ CrCl (Cockcroft-Gault) ด้วย adjusted body weight.", "monitor": "ติดตามการทำงานของไต.", "regimens": [{"name": "ขนาดคงระดับ (แบ่ง 2 ครั้ง/วัน)", "segs": [{"lo": 90.0, "hi": 9999.0, "dose": "360 mg CBA/วัน (2.4 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial (เริ่มขนาดคงระดับ 12 ชม. หลังขนาดนำ)", "note": ""}, {"lo": 80.0, "hi": 90.0, "dose": "340 mg CBA/วัน (2.25 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial (เริ่ม 12 ชม. หลังขนาดนำ)", "note": ""}, {"lo": 70.0, "hi": 80.0, "dose": "300 mg CBA/วัน (2 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 60.0, "hi": 70.0, "dose": "275 mg CBA/วัน (1.8 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 50.0, "hi": 60.0, "dose": "245 mg CBA/วัน (1.6 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 40.0, "hi": 50.0, "dose": "220 mg CBA/วัน (1.5 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "195 mg CBA/วัน (1.3 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "175 mg CBA/วัน (1.2 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 10.0, "hi": 20.0, "dose": "160 mg CBA/วัน (1.1 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 5.0, "hi": 10.0, "dose": "145 mg CBA/วัน (1 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}, {"lo": 0.0, "hi": 5.0, "dose": "130 mg CBA/วัน (0.9 vial)", "mgl": "", "mgh": "", "iv": "", "load": "ขนาดนำ 300 mg CBA = 2 vial", "note": ""}]}]}, {"id": "ertapenem", "generic": "Ertapenem", "syn": "เออร์ตาพีเนม; Invanz", "strength": "1 g", "usual": "IV 1 g วันละครั้ง", "basis": "fixed", "adj": true, "comments": "ไม่ต้องปรับ CrCl ตาม BSA ในการคิดขนาดยา.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 30.0, "hi": 9999.0, "dose": "1 g วันละครั้ง (CrCl >30, ไม่เปลี่ยน)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 30.0, "dose": "500 mg วันละครั้ง (CrCl ≤30)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "gentamicin", "generic": "Gentamicin", "syn": "เจนตามัยซิน; Garamycin", "strength": "80 mg", "usual": "Conventional 3-5 mg/kg/วัน แบ่ง q8h; HDEI 5-7 mg/kg q24h", "basis": "mg_per_kg", "adj": true, "comments": "คิดขนาดตามน้ำหนักจริง (ปรับถ้าอ้วน). ช่วงค่าเดิม ≥60/40-60/20-40/<20.", "monitor": "ไม่มี TDM ในรพ.: ติดตามการทำงานของไตและการได้ยิน.", "regimens": [{"name": "Conventional (3-5 mg/kg/วัน แบ่ง q8h)", "segs": [{"lo": 60.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥60): ขนาดปกติ q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 50.0, "hi": 60.0, "dose": "ขนาดปกติ q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 40.0, "hi": 50.0, "dose": "ขนาดปกติ q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "ขนาดปกติ q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "ขนาดปกติ q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 20.0, "dose": "ขนาดปกติ q 36-48 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "ขนาดปกติ q 36-48 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "HDEI (5-7 mg/kg q24h)", "segs": [{"lo": 60.0, "hi": 9999.0, "dose": "5-7 mg/kg q 24 h (CrCl ≥60)", "mgl": 5.0, "mgh": 7.0, "iv": "q 24 h", "load": "", "note": ""}, {"lo": 50.0, "hi": 60.0, "dose": "5-7 mg/kg q 36 h", "mgl": 5.0, "mgh": 7.0, "iv": "q 36 h", "load": "", "note": ""}, {"lo": 40.0, "hi": 50.0, "dose": "5-7 mg/kg q 36 h", "mgl": 5.0, "mgh": 7.0, "iv": "q 36 h", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "5-7 mg/kg q 48 h", "mgl": 5.0, "mgh": 7.0, "iv": "q 48 h", "load": "", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "5-7 mg/kg q 48 h", "mgl": 5.0, "mgh": 7.0, "iv": "q 48 h", "load": "", "note": ""}, {"lo": 10.0, "hi": 20.0, "dose": "ให้ครั้งเดียว แล้วปรับตามผู้ป่วย", "mgl": 5.0, "mgh": 7.0, "iv": "ครั้งเดียว", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "ให้ครั้งเดียว แล้วปรับตามผู้ป่วย", "mgl": 5.0, "mgh": 7.0, "iv": "ครั้งเดียว", "load": "", "note": ""}]}]}, {"id": "meropenem", "generic": "Meropenem", "syn": "เมอโรพีเนม; Meronem", "strength": "1 g", "usual": "IV 1 g q 8 h (หรือ 2 g q 8 h)", "basis": "fixed", "adj": true, "comments": "การให้แบบ infusion นาน 3 ชม. ช่วยให้ถึงเป้าหมายดีขึ้น.", "monitor": "", "regimens": [{"name": "1 g q8h", "segs": [{"lo": 51.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 1 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 26.0, "hi": 51.0, "dose": "1 g q 12 h (CrCl 26-50)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 26.0, "dose": "500 mg q 12 h (CrCl 10-25)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "500 mg q 24 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "2 g q8h", "segs": [{"lo": 51.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50): 2 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 26.0, "hi": 51.0, "dose": "2 g q 12 h (CrCl 26-50)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 26.0, "dose": "1 g q 12 h (CrCl 10-25)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "1 g q 24 h หรือ 500 mg q 12 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "penicillinG", "generic": "Penicillin G sodium", "syn": "เพนิซิลลิน จี; Pen G; benzylpenicillin", "strength": "5 MU", "usual": "สูงสุด ~18-24 MU/วัน แบ่ง q4-6h หรือ continuous", "basis": "fixed", "adj": true, "comments": "ขนาดยาเป็น % ของขนาดปกติตามข้อบ่งใช้. ให้แบบ continuous หรือแบ่ง q 4-6 h.", "monitor": "ติดตามอาการพิษต่อระบบประสาท.", "regimens": [{"name": "", "segs": [{"lo": 50.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl >50)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 50.0, "dose": "50-75% ของขนาดปกติ", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 10.0, "hi": 30.0, "dose": "25-50% ของขนาดปกติ", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 10.0, "dose": "20-25% ของขนาดปกติ", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "piptazo", "generic": "Piperacillin/tazobactam", "syn": "พิเพอราซิลลิน/ทาโซแบคแทม; Tazocin", "strength": "4.5 g", "usual": "IV 3.375 g q 6 h (หรือ 4.5 g q 6 h)", "basis": "fixed", "adj": true, "comments": "ขนาดยา = piperacillin + tazobactam รวมกัน.", "monitor": "", "regimens": [{"name": "3.375 g q6h", "segs": [{"lo": 40.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥40): 3.375 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "2.25 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "2.25 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 20.0, "dose": "2.25 g q 8 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}, {"name": "4.5 g q6h", "segs": [{"lo": 40.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด (CrCl ≥40): 4.5 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 30.0, "hi": 40.0, "dose": "4.5 g q 8 h หรือ 3.375 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 20.0, "hi": 30.0, "dose": "4.5 g q 8 h หรือ 3.375 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}, {"lo": 0.0, "hi": 20.0, "dose": "4.5 g q 12 h หรือ 2.25 g q 6 h", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "vancomycin", "generic": "Vancomycin", "syn": "แวนโคมัยซิน; Vancocin", "strength": "500 mg", "usual": "ขนาดนำ 25-30 mg/kg แล้ว 15-20 mg/kg ตาม CrCl", "basis": "mg_per_kg", "adj": true, "comments": "คิดขนาดเริ่มต้นตามน้ำหนักจริง. ขนาดนำสูงสุด 3 g.", "monitor": "ไม่มี TDM ในรพ.: ติดตามการทำงานของไตและการตอบสนอง.", "regimens": [{"name": "", "segs": [{"lo": 90.0, "hi": 9999.0, "dose": "15-20 mg/kg q 8-12 h", "mgl": 15.0, "mgh": 20.0, "iv": "q 8-12 h", "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)", "note": ""}, {"lo": 50.0, "hi": 90.0, "dose": "15-20 mg/kg q 12 h", "mgl": 15.0, "mgh": 20.0, "iv": "q 12 h", "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)", "note": ""}, {"lo": 30.0, "hi": 50.0, "dose": "10-15 mg/kg q 24 h", "mgl": 10.0, "mgh": 15.0, "iv": "q 24 h", "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)", "note": ""}, {"lo": 15.0, "hi": 30.0, "dose": "10-15 mg/kg q 24 h", "mgl": 10.0, "mgh": 15.0, "iv": "q 24 h", "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)", "note": ""}, {"lo": 0.0, "hi": 15.0, "dose": "10-15 mg/kg q 48-72 h", "mgl": 10.0, "mgh": 15.0, "iv": "q 48-72 h", "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)", "note": ""}]}]}, {"id": "amphotericinB", "generic": "Amphotericin B (deoxycholate)", "syn": "แอมโฟเทอริซิน บี; conventional/deoxycholate", "strength": "50 mg", "usual": "ตามข้อบ่งใช้ (conventional deoxycholate)", "basis": "special", "adj": false, "comments": "ไม่ปรับขนาดตามช่วง CrCl แต่เป็นพิษต่อไต. แนะนำสูตร lipid เมื่อการทำงานของไตบกพร่องอยู่แล้ว. ถ้า Scr สูงขึ้น: เปลี่ยนยา หรือหยุด 24-48 ชม. แล้วเริ่มใหม่ครึ่งขนาด.", "monitor": "ติดตาม Scr และเกลือแร่ (K, Mg) ใกล้ชิด. ให้สารน้ำ/โซเดียมก่อนให้ยา. เลี่ยงยาที่เป็นพิษต่อไตอื่น.", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาดตาม CrCl (ระวังพิษต่อไต — ดูหมายเหตุ/การติดตาม)", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "cloxacillin", "generic": "Cloxacillin", "syn": "คลอกซาซิลลิน", "strength": "", "usual": "ตามข้อบ่งใช้", "basis": "fixed", "adj": false, "comments": "ไม่ต้องปรับขนาดตามการทำงานของไต.", "monitor": "ติดตามใกล้ชิดถ้า CrCl <10 (เสี่ยงสะสม พิษต่อระบบประสาท/ไต; พิจารณา ≤8 g/วัน).", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "metronidazole", "generic": "Metronidazole", "syn": "เมโทรนิดาโซล; Flagyl", "strength": "", "usual": "IV 500 mg q 8 h", "basis": "fixed", "adj": false, "comments": "ไม่ต้องปรับขนาดตามการทำงานของไต.", "monitor": "ติดตามการสะสมของ metabolite ถ้า CrCl <30; 500 mg q 12 h อาจเพียงพอเมื่อ CrCl <10.", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "ceftriaxone", "generic": "Ceftriaxone", "syn": "เซฟไตรอะโซน; Rocephin", "strength": "", "usual": "IV 1-2 g วันละครั้ง", "basis": "fixed", "adj": false, "comments": "ไม่ต้องปรับขนาดตามการทำงานของไต.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "clindamycin", "generic": "Clindamycin", "syn": "คลินดามัยซิน; Dalacin", "strength": "", "usual": "IV 600-900 mg q 8 h", "basis": "fixed", "adj": false, "comments": "ไม่ต้องปรับขนาดตามการทำงานของไต.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}, {"id": "remdesivir", "generic": "Remdesivir", "syn": "เรมเดซิเวียร์; Veklury", "strength": "", "usual": "200 mg วันแรก แล้ว 100 mg วันละครั้ง", "basis": "fixed", "adj": false, "comments": "ไม่ต้องปรับขนาดตามการทำงานของไต.", "monitor": "", "regimens": [{"name": "", "segs": [{"lo": 0.0, "hi": 9999.0, "dose": "ไม่ต้องปรับขนาด", "mgl": "", "mgh": "", "iv": "", "load": "", "note": ""}]}]}], "tb": [{"id": "isoniazid", "name": "Isoniazid (H)", "letter": "H", "mgl": 4.0, "mgh": 6.0, "b1": 300.0, "b2": 300.0, "b3": 300.0, "max": 300.0, "renalAdj": false, "renalDose": "เหมือนเดิม (ไม่ปรับ)", "note": "ให้ pyridoxine (vit B6) 50-75 มก./วัน ป้องกันปลายประสาทอักเสบ; หญิงตั้งครรภ์ 50-100 มก./วัน", "verify": ""}, {"id": "rifampicin", "name": "Rifampicin (R)", "letter": "R", "mgl": 8.0, "mgh": 12.0, "b1": 450.0, "b2": 600.0, "b3": 600.0, "max": 600.0, "renalAdj": false, "renalDose": "เหมือนเดิม (ไม่ปรับ)", "note": "ปัสสาวะ/สารคัดหลั่งสีส้มแดงได้; มีอันตรกิริยากับยาหลายชนิด", "verify": ""}, {"id": "pyrazinamide", "name": "Pyrazinamide (Z)", "letter": "Z", "mgl": 20.0, "mgh": 30.0, "b1": 1000.0, "b2": 1500.0, "b3": 2000.0, "max": 2000.0, "renalAdj": true, "renalDose": "20-30 มก./กก./วัน 3 วัน/สัปดาห์", "note": "ระวังพิษต่อตับ; อาจทำให้กรดยูริกสูง/ปวดข้อ", "verify": ""}, {"id": "ethambutol", "name": "Ethambutol (E)", "letter": "E", "mgl": 15.0, "mgh": 20.0, "b1": 800.0, "b2": 1000.0, "b3": 1200.0, "max": 1600.0, "renalAdj": true, "renalDose": "15-20 มก./กก./วัน 3 วัน/สัปดาห์", "note": "ระวังพิษต่อตา (ตรวจการมองเห็น/ตาบอดสี)", "verify": ""}, {"id": "streptomycin", "name": "Streptomycin (S)", "letter": "S", "mgl": 15.0, "mgh": 15.0, "b1": "", "b2": "", "b3": "", "max": 1000.0, "renalAdj": true, "renalDose": "อายุ ≥60 ปี หรือ CrCl<30/HD: 12-15 มก./กก. 2-3 ครั้ง/สัปดาห์", "note": "ยาฉีด IM/IV; คิดขนาดตามน้ำหนักตัว (15 มก./กก./วัน สูงสุด 1 g); เลี่ยงในหญิงตั้งครรภ์; ระวังพิษต่อหู/ไต", "verify": "ตรวจสอบ — ขนาดไม่ได้อยู่ในตาราง 5.1/5.9 (อยู่ในส่วนสูตรดื้อยา ตาราง 6.6) โปรดยืนยัน"}, {"id": "levofloxacin", "name": "Levofloxacin (Lfx)", "letter": "Lfx", "mgl": "", "mgh": "", "b1": 750.0, "b2": 750.0, "b3": 750.0, "max": "", "renalAdj": true, "renalDose": "CrCl<30/HD: 750 มก. 3 ครั้ง/สัปดาห์ (ตรวจสอบ)", "note": "ขนาดคงที่ 750 มก./วัน (ไม่คิดตามน้ำหนัก; อ้างอิงตาราง 6.3). ใช้ในสูตรตับบกพร่อง เช่น 12-18 HE + Lfx และสูตรดื้อยา. ระวัง QT prolongation.", "verify": ""}, {"id": "amikacin_tb", "name": "Amikacin (Am)", "letter": "Am", "mgl": 15.0, "mgh": 15.0, "b1": "", "b2": "", "b3": "", "max": 1000.0, "renalAdj": true, "renalDose": "อายุ ≥60 ปี หรือ CrCl<30/HD: 12-15 มก./กก. 2-3 ครั้ง/สัปดาห์", "note": "ยาฉีด; คิดตามน้ำหนักตัว 15 มก./กก./วัน (สูงสุด 1 g). ใช้ในสูตรตับบกพร่อง เช่น 2 AmHE/16 HE และสูตรดื้อยา. เลี่ยงในหญิงตั้งครรภ์; ระวังพิษต่อหู/ไต.", "verify": "ตรวจสอบ — ขนาดจากสูตรดื้อยา/แนวทางทั่วไป ไม่ได้อยู่ในตาราง 5.1; โปรดยืนยัน"}]};
+var IV = DATA.iv, TB = DATA.tb;
+var mode='iv', sex='M', renal=0;
+
+var TBCOLOR={H:'#2f6fb0',R:'#d6402f',Z:'#4f9a3f',E:'#7a3e9d',S:'#0f8a7e',Lfx:'#c05a1a',Am:'#b0397a'};
+var PALETTE=['#2f6fb0','#d6402f','#4f9a3f','#7a3e9d','#0f8a7e','#c05a1a','#b0397a','#3a7d3a'];
+function ivColor(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return PALETTE[h%PALETTE.length];}
+
+var FOOT_IV='เครื่องมือช่วยตัดสินใจ ไม่ใช่คำสั่งใช้ยา — ตรวจสอบกับแหล่งอ้างอิงเสมอ · ผู้ใหญ่เท่านั้น (บล็อก &lt;16 ปี) ไม่ใช้กับผู้ป่วยฟอกไต/RRT และหญิงตั้งครรภ์ · อ้างอิง: UpToDate / Lexicomp · ปรับปรุงล่าสุด 2026-07-17 · v1.2';
+var FOOT_TB='เครื่องมือช่วยตัดสินใจ ไม่ใช่คำสั่งใช้ยา — ตรวจสอบกับแหล่งอ้างอิงเสมอ · ผู้ใหญ่ (&gt;15 ปี) · น้ำหนัก &lt;30 กก. หรือเด็กใช้ตารางขนาดยาเด็ก · อ้างอิง: แนวทางการควบคุมวัณโรคประเทศไทย พ.ศ. 2564 (ตาราง 5.1, 5.9, 6.3) · ปรับปรุงล่าสุด 2026-07-17 · v1.2';
+
+function setMode(m){
+  mode=m; document.body.className=m;
+  document.querySelectorAll('.tabs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-m')===m);});
+  document.getElementById('ivpick').classList.toggle('hide',m!=='iv');
+  document.getElementById('tbpick').classList.toggle('hide',m!=='tb');
+  document.getElementById('sexopt').textContent = (m==='tb')?'(ใช้เมื่อประเมิน CrCl)':'';
+  document.getElementById('scrlab').innerHTML = (m==='tb')?'Scr (mg/dL) <span class="opt">— ไม่บังคับ</span>':'Scr (mg/dL)';
+  document.getElementById('foot').innerHTML = (m==='tb')?FOOT_TB:FOOT_IV;
+  document.getElementById('result').innerHTML='';
+  updateRenalUI();
+}
+function updateRenalUI(){
+  if(mode!=='tb') return;
+  var scr=num('scr'),age=num('age'),wt=num('wt');
+  var seg=document.getElementById('renal'),hint=document.getElementById('renalhint');
+  if(scr!==null&&scr>0&&age!==null&&wt!==null&&wt>0){
+    var cr=((140-age)*wt*(sex==='F'?0.85:1.0))/(72*scr);
+    seg.classList.add('off');
+    hint.innerHTML='ระบบใช้ค่า CrCl ที่คำนวณ = <b>'+Math.round(cr)+'</b> mL/min → '+(cr<30?'<b>ปรับตามไต</b>':'ปกติ')+' (ปุ่มไตถูกปิด — ลบ Scr เพื่อเลือกเอง)';
+  } else {
+    seg.classList.remove('off');
+    hint.innerHTML='ยังไม่ได้กรอก Scr — เลือกสถานะไตเอง หรือกรอก Scr/อายุ/น้ำหนัก เพื่อให้คำนวณ CrCl อัตโนมัติ';
+  }
+}
+['age','wt','scr'].forEach(function(id){document.getElementById(id).addEventListener('input',updateRenalUI);});
+document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));});});
+document.querySelectorAll('#sex button').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('#sex button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');sex=b.getAttribute('data-v');updateRenalUI();});});
+document.querySelectorAll('#renal button').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('#renal button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');renal=+b.getAttribute('data-v');});});
+
+// IV drug type-to-search combobox
+var selDrug=null;
+var dsearch=document.getElementById('drugsearch');
+var sugg=document.getElementById('suggest');
+function renderSuggest(q){
+  q=(q||'').toLowerCase().trim();
+  var list=IV.filter(function(d){return !q||(d.generic+' '+d.syn+' '+d.id).toLowerCase().indexOf(q)>=0;});
+  if(!list.length){sugg.innerHTML='<div class="empty">ไม่พบยา</div>';sugg.classList.remove('hide');return;}
+  sugg.innerHTML=list.map(function(d){
+    return '<div class="item" data-id="'+d.id+'">'+esc(d.generic)+(d.strength?(' · <span style="color:var(--muted)">'+esc(d.strength)+'</span>'):'')+'</div>';
+  }).join('');
+  sugg.classList.remove('hide');
+}
+function pickDrug(id){var d=IV.find(function(x){return x.id===id;});selDrug=id;dsearch.value=d.generic;sugg.classList.add('hide');}
+dsearch.addEventListener('focus',function(){renderSuggest(this.value);});
+dsearch.addEventListener('input',function(){selDrug=null;renderSuggest(this.value);});
+dsearch.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){var first=sugg.querySelector('.item');if(first&&!sugg.classList.contains('hide')){e.preventDefault();pickDrug(first.getAttribute('data-id'));}}
+  if(e.key==='Escape'){sugg.classList.add('hide');}
+});
+dsearch.addEventListener('blur',function(){setTimeout(function(){sugg.classList.add('hide');},150);});
+sugg.addEventListener('mousedown',function(e){var it=e.target.closest('.item');if(it){pickDrug(it.getAttribute('data-id'));}});
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function num(id){var v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
+function matchSeg(segs,cr){for(var i=0;i<segs.length;i++){if(cr>=segs[i].lo&&cr<segs[i].hi)return i;}return -1;}
+function fmtBand(s){if(s.lo<=0&&s.hi>=9999)return 'ทุกค่า';if(s.hi>=9999)return '≥'+s.lo;if(s.lo<=0)return '<'+s.hi;return s.lo+'–<'+s.hi;}
+
+document.getElementById('go').addEventListener('click',function(){
+  var res=document.getElementById('result');res.innerHTML='';
+  var age=num('age'),wt=num('wt'),scr=num('scr');
+  var errs=[];
+  if(age===null)errs.push('กรอกอายุ');
+  if(wt===null||wt<=0)errs.push('กรอกน้ำหนัก');
+  if(mode==='iv'&&(scr===null||scr<=0))errs.push('กรอก Scr');
+  if(mode==='iv'&&!selDrug)errs.push('เลือกยาจากรายการ');
+  if(errs.length){res.innerHTML='<div class="card"><div class="flag red">'+esc(errs.join(' · '))+'</div></div>';return;}
+  if(age<16){res.innerHTML='<div class="card"><div class="flag red">อายุ &lt;16 ปี — เครื่องมือนี้สำหรับผู้ใหญ่เท่านั้น'+(mode==='tb'?' (เด็ก/น้ำหนักน้อยใช้ตารางขนาดยาเด็ก)':' (บางรายการยาอาจมีเกณฑ์ต่างออกไป)')+'</div></div>';return;}
+
+  var crcl=null;
+  if(scr!==null&&scr>0){ crcl=((140-age)*wt*(sex==='F'?0.85:1.0))/(72*scr); }
+
+  if(mode==='iv'){ runIV(age,wt,scr,crcl); }
+  else { runTB(age,wt,crcl); }
+});
+
+/* ---------------- IV ---------------- */
+function runIV(age,wt,scr,cr){
+  var res=document.getElementById('result');
+  var d=IV.find(function(x){return x.id===selDrug;});
+  var crR=Math.round(cr);
+  var flags=[];
+  if(cr>120)flags.push(['amber','CrCl สูงผิดปกติ (&gt;120) — ตรวจสอบค่า Scr/น้ำหนัก และใช้วิจารณญาณ']);
+  if(wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
+  if(wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
+  if(cr<10){
+    var h='<div class="card"><div class="crcl">CrCl โดยประมาณ <b>'+crR+'</b> mL/min</div>';
+    h+='<div class="flag amber" style="margin-top:12px">CrCl &lt;10 — ผู้ป่วยได้รับการฟอกไต/RRT หรือไม่?</div>';
+    h+='<div class="rrt"><button class="yes" id="rY">ใช่ (ฟอกไต)</button><button class="no" id="rN">ไม่ใช่</button></div></div>';
+    res.innerHTML=h;
+    document.getElementById('rY').onclick=function(){res.innerHTML='<div class="card"><div class="flag red">ผู้ป่วยฟอกไต/RRT: เครื่องมือนี้ไม่ครอบคลุมขนาดยาสำหรับการบำบัดทดแทนไต — โปรดส่งต่อ/ปรึกษาตามแนวทาง</div></div>';};
+    document.getElementById('rN').onclick=function(){renderIV(d,cr,crR,flags,true);};
+    return;
+  }
+  renderIV(d,cr,crR,flags,false);
+}
+function renderIV(d,cr,crR,flags,low){
+  var h='<div class="card"><div class="crcl">CrCl โดยประมาณ <b>'+crR+'</b> mL/min</div>';
+  flags.forEach(function(f){h+='<div class="flag '+f[0]+'">'+f[1]+'</div>';});
+  if(low)h+='<div class="flag amber">ขนาดยาต่อไปนี้เป็นสูตรผู้ป่วย<b>ไม่ได้</b>ฟอกไต</div>';
+  h+='<div class="medname" style="color:'+ivColor(d.id)+';margin-top:12px">'+esc(d.generic)+'</div>';
+  if(d.strength)h+='<div class="usual">'+esc(d.strength)+'</div>';
+  if(d.usual)h+='<div class="usual">ขนาดปกติ: '+esc(d.usual)+'</div>';
+  d.regimens.forEach(function(rg){
+    var i=matchSeg(rg.segs,cr),s=i>=0?rg.segs[i]:null;
+    h+='<div class="reg">';
+    if(rg.name)h+='<div class="regname">'+esc(rg.name)+'</div>';
+    if(s){
+      h+='<div class="band">ช่วง CrCl '+fmtBand(s)+'</div><div class="dose">'+esc(s.dose)+'</div>';
+      if(s.mgl!==''){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
+        h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';}
+      if(s.load)h+='<div class="load"><b>ขนาดนำ:</b> '+esc(s.load)+'</div>';
+      if(s.note)h+='<div class="note">'+esc(s.note)+'</div>';
+    } else h+='<div class="dose">—</div>';
+    if(rg.segs.length>1){var tid='t'+Math.random().toString(36).slice(2);
+      h+='<span class="more" onclick="var e=document.getElementById(\''+tid+'\');e.style.display=e.style.display===\'none\'?\'block\':\'none\';">ดูทุกช่วง CrCl ▾</span><div id="'+tid+'" style="display:none"><table>';
+      rg.segs.forEach(function(sg,j){h+='<tr class="'+(j===i?'hit':'')+'"><td>'+fmtBand(sg)+'</td><td>'+esc(sg.dose)+'</td></tr>';});
+      h+='</table></div>';}
+    h+='</div>';
+  });
+  if(d.comments)h+='<div class="note" style="margin-top:12px"><b>หมายเหตุ:</b> '+esc(d.comments)+'</div>';
+  if(d.monitor)h+='<div class="note"><b>การติดตาม:</b> '+esc(d.monitor)+'</div>';
+  h+='</div>';
+  document.getElementById('result').innerHTML=h;
+}
+
+/* ---------------- TB ---------------- */
+function runTB(age,wt,cr){
+  var res=document.getElementById('result');
+  // Scr-derived CrCl is authoritative; manual toggle only used when no Scr entered
+  var eff, srcTxt;
+  if(cr!==null){ eff = (cr<30)?1:0; srcTxt='ประเมินจาก CrCl ที่คำนวณ = <b>'+Math.round(cr)+'</b> mL/min'; }
+  else { eff = renal; srcTxt='ระบุสถานะไตโดยผู้ใช้ (ไม่ได้กรอก Scr)'; }
+  var h='<div class="card">';
+  h+='<div class="crcl" style="font-size:14px">'+srcTxt+'</div>';
+  if(wt<30) h+='<div class="flag amber">น้ำหนัก &lt;30 กก. — แนวทางให้ใช้ตารางขนาดยาเด็ก (&lt;15 ปี)</div>';
+  h+='<div style="font-size:15px;margin-top:6px">น้ำหนัก '+wt+' กก. · '+(eff?'<b>ปรับตามไต (CrCl&lt;30/HD)</b>':'การทำงานของไตปกติ')+'</div>';
+
+  var band = wt<35?'lt35':(wt<50?'b1':(wt<70?'b2':'b3'));
+  var bandTxt = wt<35?'<35 (คิดตามน้ำหนัก)':(wt<50?'35–49':(wt<70?'50–69':'>70 (คิดตามน้ำหนัก)'));
+
+  TB.forEach(function(t){
+    h+='<div class="reg" style="border-left:4px solid '+(TBCOLOR[t.letter]||'#888')+'">';
+    h+='<div class="medname" style="color:'+(TBCOLOR[t.letter]||'#333')+'">'+esc(t.name)+'</div>';
+    if(t.verify) h+='<div class="flag amber">'+esc(t.verify)+'</div>';
+
+    if(eff && t.renalAdj){
+      // renal-adjusted
+      h+='<div class="band">ปรับตามไต</div>';
+      h+='<div class="dose">'+esc(t.renalDose)+'</div>';
+      if(t.mgl!==''){ h+=mgkgHelper(t,wt,' (3 วัน/สัปดาห์)'); }
+    } else {
+      if(eff && !t.renalAdj) h+='<div class="band">ไม่ปรับตามไต (เหมือนเดิม)</div>';
+      else h+='<div class="band">น้ำหนัก '+bandTxt+'</div>';
+      var wbased = t.mgl!=='';   // weight-based (mg/kg) drug
+      var fixed;
+      if(band==='lt35'){ fixed = wbased ? '' : t.b1; }   // <35: wt-based -> mg/kg; flat drug -> b1 value
+      else { fixed = band==='b1'?t.b1:(band==='b2'?t.b2:t.b3); }
+      if(fixed!==''){
+        h+='<div class="dose">'+fixed+' mg/วัน</div>';
+        if(wbased && (band==='b3'||band==='lt35'))
+          h+='<div class="note">น้ำหนักนอกช่วงตาราง: คิดตามน้ำหนักตัว (ดูช่วง มก./กก. ด้านล่าง)</div>';
+      } else {
+        var hh=capRange(t,wt);
+        h+='<div class="dose">'+hh.txt+'/วัน</div>';
+        h+='<div class="note">คิดตามน้ำหนักตัว</div>';
+      }
+      if(wbased) h+=mgkgHelper(t,wt,'/วัน');
+    }
+    if(t.note) h+='<div class="note">'+esc(t.note)+'</div>';
+    h+='</div>';
+  });
+  h+='<div class="note" style="margin-top:12px">สูตรมาตรฐานผู้ป่วยใหม่: 2HRZE / 4HR. คำนวณขนาดตามน้ำหนักก่อนเริ่มรักษา (หญิงตั้งครรภ์ใช้น้ำหนักก่อนตั้งครรภ์).</div>';
+  h+='<div class="note">สูตรตับบกพร่อง (ALT >3 เท่า): 2HRE/7HR · 6-9 RZE · 2 AmHE/16 HE · 12-18 HE + Lfx (เลือกตามความรุนแรง; Lfx และ Am เป็นยาที่ไม่เป็นพิษต่อตับ).</div>';
+  h+='</div>';
+  res.innerHTML=h;
+}
+function capRange(t,wt){
+  var lo=t.mgl*wt, hi=t.mgh*wt;
+  if(t.max!==''){lo=Math.min(lo,t.max);hi=Math.min(hi,t.max);}
+  lo=Math.round(lo);hi=Math.round(hi);
+  var txt=(t.mgl===t.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
+  var capped=(t.max!==''&&(t.mgh*wt>t.max));
+  return {lo:lo,hi:hi,txt:txt,capped:capped};
+}
+function mgkgHelper(t,wt,suffix){
+  var r=capRange(t,wt);
+  var mk=t.mgl+(t.mgh!==t.mgl?('-'+t.mgh):'');
+  return '<div class="helper">คำนวณ: '+mk+' mg/kg × '+wt+' กก. = '+r.txt+esc(suffix)+(r.capped?(' (สูงสุด '+t.max+' mg)'):'')+'</div>';
+}
+
+setMode('iv');
+</script>
+</body>
+</html>
