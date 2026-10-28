@@ -12,11 +12,16 @@
 -->
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ปรับขนาดยาปฏิชีวนะฉีด/วัณโรค ตามไต·น้ำหนัก</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffd23f">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ปรับขนาดยา">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{ --ink:#1a1a1a; --bg:#f2e6c9; --card:#fffdf5; --acc:#ffd23f; --acctx:#1a1a1a; --hl:#ffe488; --muted:#6a6455;
     --crcl:#d6402f; --amberbg:#ffe1a0; --ambertx:#5c3d00; --redbg:#fdcfca; --redtx:#8f2018;}
@@ -61,7 +66,7 @@
   .go:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
   .go .arw{transition:transform .15s}
   .go:hover .arw{transform:translateX(5px)}
-  .flag{font-size:13.5px;font-weight:500;padding:10px 12px;border:2.5px solid var(--ink);border-radius:10px;margin:10px 0}
+  .flag{font-size:14px;font-weight:500;padding:10px 12px;border:2.5px solid var(--ink);border-radius:10px;margin:10px 0}
   .flag.amber{background:var(--amberbg);color:var(--ambertx)}
   .flag.red{background:var(--redbg);color:var(--redtx)}
   .crcl{font-size:15px}.crcl b{font-size:26px;font-weight:700;color:var(--crcl)}
@@ -75,7 +80,7 @@
   .note{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.55}
   .usual{font-size:14px;color:var(--muted);margin-top:2px}
   .more{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:var(--ink);background:#fff;border:2.5px solid var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
   td{padding:8px 6px;border-top:2px solid var(--ink);vertical-align:top}
   tr.hit td{background:var(--hl);font-weight:700}
   .rrt{display:flex;gap:10px;margin-top:4px}
@@ -85,6 +90,7 @@
   .credit{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.6;padding:10px 8px 30px;border-top:2px solid var(--ink);margin-top:6px}
   .credit b{font-weight:600;color:var(--ink)}
   .hide{display:none}
+  button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 </style>
 </head>
 <body class="iv">
@@ -1362,7 +1368,7 @@ var DATA = {
    "generic": "Vancomycin",
    "syn": "แวนโคมัยซิน; Vancocin",
    "strength": "500 mg",
-   "usual": "ขนาดนำ 25-30 mg/kg แล้ว 15-20 mg/kg ตาม CrCl",
+   "usual": "15-20 mg/kg/dose q 8-12 h; ขนาดนำ 20-35 mg/kg เฉพาะผู้ป่วยวิกฤตที่ติดเชื้อ MRSA รุนแรง (สูงสุด 3 g)",
    "basis": "mg_per_kg",
    "adj": true,
    "comments": "คิดขนาดเริ่มต้นตามน้ำหนักจริง. ขนาดนำสูงสุด 3 g.",
@@ -1378,8 +1384,9 @@ var DATA = {
        "mgl": 15.0,
        "mgh": 20.0,
        "iv": "q 8-12 h",
-       "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)",
-       "note": ""
+       "load": "25-30 mg/kg ครั้งเดียว — เฉพาะผู้ป่วยวิกฤตที่สงสัย/ยืนยันติดเชื้อ MRSA รุนแรง; คิดตามน้ำหนักจริง; สูงสุด 3 g; เริ่มขนาดคงระดับในรอบถัดไป",
+       "note": "",
+       "loExc": true
       },
       {
        "lo": 50.0,
@@ -1388,8 +1395,9 @@ var DATA = {
        "mgl": 15.0,
        "mgh": 20.0,
        "iv": "q 12 h",
-       "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)",
-       "note": ""
+       "load": "20-25 mg/kg ครั้งเดียว — เฉพาะผู้ป่วยวิกฤตที่สงสัย/ยืนยันติดเชื้อ MRSA รุนแรง; คิดตามน้ำหนักจริง; สูงสุด 3 g; เริ่มขนาดคงระดับในรอบถัดไป",
+       "note": "",
+       "hiInc": true
       },
       {
        "lo": 30.0,
@@ -1398,7 +1406,7 @@ var DATA = {
        "mgl": 10.0,
        "mgh": 15.0,
        "iv": "q 24 h",
-       "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)",
+       "load": "20-25 mg/kg ครั้งเดียว — เฉพาะผู้ป่วยวิกฤตที่สงสัย/ยืนยันติดเชื้อ MRSA รุนแรง; คิดตามน้ำหนักจริง; สูงสุด 3 g; เริ่มขนาดคงระดับในรอบถัดไป",
        "note": ""
       },
       {
@@ -1408,7 +1416,7 @@ var DATA = {
        "mgl": 10.0,
        "mgh": 15.0,
        "iv": "q 24 h",
-       "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)",
+       "load": "20-25 mg/kg ครั้งเดียว — เฉพาะผู้ป่วยวิกฤตที่สงสัย/ยืนยันติดเชื้อ MRSA รุนแรง; คิดตามน้ำหนักจริง; สูงสุด 3 g; เริ่มขนาดคงระดับในรอบถัดไป",
        "note": ""
       },
       {
@@ -1418,12 +1426,13 @@ var DATA = {
        "mgl": 10.0,
        "mgh": 15.0,
        "iv": "q 48-72 h",
-       "load": "ขนาดนำ 25-30 mg/kg (สูงสุด 3 g)",
+       "load": "20-25 mg/kg ครั้งเดียว — เฉพาะผู้ป่วยวิกฤตที่สงสัย/ยืนยันติดเชื้อ MRSA รุนแรง; คิดตามน้ำหนักจริง; สูงสุด 3 g; เริ่มขนาดคงระดับในรอบถัดไป",
        "note": ""
       }
      ]
     }
-   ]
+   ],
+   "dailyWarnMg": 4000.0
   },
   {
    "id": "amphotericinB",
@@ -1780,8 +1789,9 @@ sugg.addEventListener('mousedown',function(e){var it=e.target.closest('.item');i
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function num(id){var v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
-function matchSeg(segs,cr){for(var i=0;i<segs.length;i++){if(cr>=segs[i].lo&&cr<segs[i].hi)return i;}return -1;}
-function fmtBand(s){if(s.lo<=0&&s.hi>=9999)return 'ทุกค่า';if(s.hi>=9999)return '≥'+s.lo;if(s.lo<=0)return '<'+s.hi;return s.lo+'–<'+s.hi;}
+// bands are lo-inclusive/hi-exclusive unless the segment sets loExc / hiInc (source wording like ">90" / "50 to 90")
+function matchSeg(segs,cr){for(var i=0;i<segs.length;i++){var s=segs[i];if((s.loExc?cr>s.lo:cr>=s.lo)&&(s.hiInc?cr<=s.hi:cr<s.hi))return i;}return -1;}
+function fmtBand(s){if(s.lo<=0&&s.hi>=9999)return 'ทุกค่า';if(s.hi>=9999)return (s.loExc?'>':'≥')+s.lo;if(s.lo<=0)return (s.hiInc?'≤':'<')+s.hi;return (s.loExc?'>':'')+s.lo+'–'+(s.hiInc?'':'<')+s.hi;}
 
 var hasResult=false;   // true หลังคำนวณสำเร็จ 1 ครั้ง → แก้ค่าใดก็คำนวณใหม่อัตโนมัติ
 var AUTO=false;        // true = คำนวณใหม่อัตโนมัติ (ไม่ต้องเลื่อนหน้าจอ)
@@ -1847,7 +1857,10 @@ function renderIV(d,cr,crR,flags,low){
     if(s){
       h+='<div class="band">ช่วง CrCl '+fmtBand(s)+'</div><div class="dose">'+esc(s.dose)+'</div>';
       if(s.mgl!==''){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
-        h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';}
+        h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';
+        // daily-total warning (vancomycin >4 g/day): upper dose × shortest interval in the band
+        var qn=parseFloat((String(s.iv).match(/q\s*(\d+)/)||[])[1]);
+        if(d.dailyWarnMg&&qn){var day=hi*24/qn;if(day>d.dailyWarnMg)h+='<div class="flag amber">ขนาดช่วงบนรวม ≈ '+(day/1000).toFixed(1)+' g/วัน (เกิน '+(d.dailyWarnMg/1000)+' g/วัน) — ติดตามการทำงานของไตใกล้ชิด</div>';}}
       if(s.load)h+='<div class="load"><b>ขนาดนำ:</b> '+esc(s.load)+'</div>';
       if(s.note)h+='<div class="note">'+esc(s.note)+'</div>';
     } else h+='<div class="dose">—</div>';
@@ -1930,6 +1943,9 @@ function mgkgHelper(t,wt,suffix){
 }
 
 setMode('iv');
+</script>
+<script>
+if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
 </script>
 </body>
 </html>
