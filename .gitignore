@@ -1,0 +1,13 @@
+# Private references (copyrighted UpToDate/MIMS/Pfizer content).
+# Lives in the private repo Tamonwan-chan/ATB-CKD-references, cloned into this folder.
+IV ATB Renal Adjustment Resources/
+
+# Machine-specific Claude Code settings
+.claude/settings.local.json
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+__pycache__/
