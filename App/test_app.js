@@ -35,4 +35,5 @@ const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;
 for(const cr of [100,60,59.9,40,39.9,20,19.9,10,9.9,0.5]) assert.equal(ivAt(hdei('amikacin'),cr),ivAt(hdei('gentamicin'),cr),'amikacin vs gentamicin HDEI at '+cr);
 assert.equal(ivAt(hdei('amikacin'),25),'q 48 h');
 assert(!JSON.stringify(hdei('amikacin')).includes('ไม่แนะนำ'),'old <30 row gone');
+assert(T.IV.find(d=>d.id==='amikacin').comments.includes('CrCl <40')&&T.IV.find(d=>d.id==='amikacin').comments.includes('severe sepsis/shock'),'amikacin HDEI caution note');
 console.log('all checks passed');
