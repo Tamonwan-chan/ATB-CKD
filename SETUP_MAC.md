@@ -26,6 +26,8 @@ git clone https://github.com/Tamonwan-chan/ATB-CKD-references.git "IV ATB Renal 
 open .
 ```
 
+The private repo also holds the project instructions, memory and personal profile (`_private/`). Claude reads them from there.
+
 The project is now in `~/Documents/ATB-CKD` (outside OneDrive, on purpose: OneDrive syncing git's hidden files can corrupt them).
 
 **If Terminal asks for a GitHub password:** GitHub no longer accepts your account password there. Run this instead, choose GitHub.com → HTTPS → Login with a web browser, then repeat step 3:
@@ -66,6 +68,10 @@ git -C "IV ATB Renal Adjustment Resources" pull
 
 **Finish — save and publish:**
 
+If you changed anything in `docs/` (the app), first open `docs/sw.js` and raise the number in
+`const CACHE = 'renal-v1';` (v1 → v2 → v3 …). Phones that already opened the app keep their saved
+copy until this name changes, so without it they keep showing the old doses.
+
 ```bash
 cd ~/Documents/ATB-CKD
 git add -A
@@ -73,7 +79,7 @@ git commit -m "Describe what you changed"
 git push
 ```
 
-Pushing a change to `docs/index.html` updates the live site (https://tamonwan-chan.github.io/ATB-CKD/) within about a minute.
+Pushing a change to `docs/index.html` updates the live site (https://tamonwan-chan.github.io/ATB-CKD/) within about a minute for new visitors. Phones that already opened the app update only if you raised the `CACHE` number above.
 
 **After adding a new reference PDF** to `IV ATB Renal Adjustment Resources/`:
 
@@ -85,3 +91,17 @@ git push
 ```
 
 The references repo is **private** (copyrighted UpToDate content). Never share it or move the PDFs into the public project folder.
+
+**After changing the private project files** (`_private/CLAUDE.md`, `_private/MEMORY.md`): commit and push them in the references repo, as above.
+
+---
+
+# If you cloned before 29 Oct 2026
+
+The public repo's history was rewritten on 29 Oct 2026 to remove private files. An older copy still holds them,
+and pushing from it would put them back. On every computer that cloned before that date:
+
+1. Copy out any work you have not pushed yet.
+2. Delete the old `ATB-CKD` folder.
+3. Run step 3 again.
+

@@ -11,3 +11,8 @@ Thumbs.db
 desktop.ini
 ~$*
 __pycache__/
+
+# Private project files: they live in the private repo under IV ATB Renal Adjustment Resources/_private/.
+# Blocked here so an old clone can never put them back into the public repo.
+/core/
+/MEMORY.md
