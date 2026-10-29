@@ -1,5 +1,5 @@
 // ponytail: bump CACHE to force clients to pull a new index.html after edits
-const CACHE = 'renal-v1';
+const CACHE = 'renal-v2';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
