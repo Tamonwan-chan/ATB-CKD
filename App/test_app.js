@@ -36,4 +36,6 @@ for(const cr of [100,60,59.9,40,39.9,20,19.9,10,9.9,0.5]) assert.equal(ivAt(hdei
 assert.equal(ivAt(hdei('amikacin'),25),'q 48 h');
 assert(!JSON.stringify(hdei('amikacin')).includes('ไม่แนะนำ'),'old <30 row gone');
 for(const id of ['amikacin','gentamicin']){const c=T.IV.find(d=>d.id===id).comments;assert(c.includes('CrCl <40')&&c.includes('severe sepsis/shock'),id+' HDEI caution note');}
+// amikacin conventional CrCl >=60 (#3): helper shows the two valid pairs, never a merged 300-450 mg q8-12h range
+{const r=run('amikacin',83.33,60);assert(r.includes('300 mg q 8 h หรือ 450 mg q 12 h'),'amikacin pairs');assert(!r.includes('300-450 mg'),'no merged range');}
 console.log('all checks passed');

@@ -181,7 +181,17 @@ var DATA = {
        "mgh": 7.5,
        "iv": "q 8-12 h",
        "load": "",
-       "note": ""
+       "note": "",
+       "pairs": [
+        [
+         5.0,
+         "q 8 h"
+        ],
+        [
+         7.5,
+         "q 12 h"
+        ]
+       ]
       },
       {
        "lo": 50.0,
@@ -1876,7 +1886,9 @@ function renderIV(d,cr,crR,flags,low){
     if(rg.name)h+='<div class="regname">'+esc(rg.name)+'</div>';
     if(s){
       h+='<div class="band">ช่วง CrCl '+fmtBand(s)+'</div><div class="dose">'+esc(s.dose)+'</div>';
-      if(s.mgl!==''){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
+      if(s.pairs){var wt=num('wt');   // e.g. amikacin 5 mg/kg q8h OR 7.5 mg/kg q12h — never mix the ranges
+        h+='<div class="helper">คำนวณ ('+wt+' กก.): '+s.pairs.map(function(p){return Math.round(p[0]*wt)+' mg '+esc(p[1]);}).join(' หรือ ')+'</div>';}
+      else if(s.mgl!==''){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
         h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';
         // daily-total warning (vancomycin >4 g/day): upper dose × shortest interval in the band
         var qn=parseFloat((String(s.iv).match(/q\s*(\d+)/)||[])[1]);
