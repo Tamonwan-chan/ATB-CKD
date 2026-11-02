@@ -126,6 +126,11 @@
     <input type="number" id="wt" inputmode="decimal" min="0" placeholder="เช่น 60">
     <label id="scrlab">Scr (mg/dL)</label>
     <input type="number" id="scr" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 1.2">
+    <!-- admin/test mode: shown only when the link ends with ?admin -->
+    <div id="adminrow" class="hide">
+      <label>CrCl ทดสอบ (mL/min) <span class="opt">— โหมดผู้ดูแล: ถ้ากรอก จะใช้แทนค่าที่คำนวณ</span></label>
+      <input type="number" id="crclx" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 50">
+    </div>
 
     <!-- IV drug picker (type-to-search combobox) -->
     <div id="ivpick">
@@ -1753,6 +1758,11 @@ var DATA = {
 var IV = DATA.iv, TB = DATA.tb;
 IV.sort(function(a,b){return a.generic.localeCompare(b.generic);});  // แสดงรายชื่อยา IV เรียง A–Z
 var mode='iv', sex='M', renal=0;
+// admin/test mode: open the app with ?admin to type CrCl directly (overrides Cockcroft-Gault). Results get a red test label.
+var ADMIN=typeof location!=='undefined'&&/[?&]admin\b/.test(location.search), CR_MANUAL=false;
+if(ADMIN)document.getElementById('adminrow').classList.remove('hide');
+function manualCr(){if(!ADMIN)return null;var v=num('crclx');return (v!==null&&v>=0)?v:null;}
+function crLine(crR){return '<div class="crcl">CrCl '+(CR_MANUAL?'(กรอกเอง)':'โดยประมาณ')+' <b>'+crR+'</b> mL/min</div>'+(CR_MANUAL?'<div class="flag red">โหมดทดสอบ: ใช้ CrCl ที่กรอกเอง ไม่ได้คำนวณจากผู้ป่วย</div>':'');}
 
 var TBCOLOR={H:'#2f6fb0',R:'#d6402f',Z:'#4f9a3f',E:'#7a3e9d',S:'#0f8a7e',Lfx:'#c05a1a',Am:'#b0397a'};
 var PALETTE=['#2f6fb0','#d6402f','#4f9a3f','#7a3e9d','#0f8a7e','#c05a1a','#b0397a','#3a7d3a'];
@@ -1786,7 +1796,7 @@ function updateRenalUI(){
     hint.innerHTML='ยังไม่ได้กรอก Scr — เลือกสถานะไตเอง หรือกรอก Scr/อายุ/น้ำหนัก เพื่อให้คำนวณ CrCl อัตโนมัติ';
   }
 }
-['age','wt','scr'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){updateRenalUI();recalc();});});
+['age','wt','scr','crclx'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){updateRenalUI();recalc();});});
 document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));});});
 document.getElementById('devbtn').addEventListener('click',function(){document.getElementById('devcard').classList.toggle('hide');});
 document.querySelectorAll('#sex button').forEach(function(b){b.addEventListener('click',function(){
@@ -1832,7 +1842,7 @@ function runCalc(auto){
   var errs=[];
   if(age===null)errs.push('กรอกอายุ');
   if(wt===null||wt<=0)errs.push('กรอกน้ำหนัก');
-  if(mode==='iv'&&(scr===null||scr<=0))errs.push('กรอก Scr');
+  if(mode==='iv'&&(scr===null||scr<=0)&&manualCr()===null)errs.push('กรอก Scr');
   if(mode==='iv'&&!selDrug)errs.push('เลือกยาจากรายการ');
   if(errs.length){
     if(auto){return;}   // ระหว่างพิมพ์ ไม่ต้องขึ้นข้อความเตือน แค่ล้างผลลัพธ์
@@ -1845,6 +1855,7 @@ function runCalc(auto){
 
   var crcl=null;
   if(scr!==null&&scr>0){ crcl=((140-age)*wt*(sex==='F'?0.85:1.0))/(72*scr); }
+  var mc=manualCr(); CR_MANUAL=(mc!==null); if(CR_MANUAL)crcl=mc;
 
   hasResult=true;
   if(mode==='iv'){ runIV(age,wt,scr,crcl); }
@@ -1863,7 +1874,7 @@ function runIV(age,wt,scr,cr){
   if(wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
   if(wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
   if(cr<10){
-    var h='<div class="card"><div class="crcl">CrCl โดยประมาณ <b>'+crR+'</b> mL/min</div>';
+    var h='<div class="card">'+crLine(crR);
     h+='<div class="flag amber" style="margin-top:12px">CrCl &lt;10 — ผู้ป่วยได้รับการฟอกไต/RRT หรือไม่?</div>';
     h+='<div class="rrt"><button class="yes" id="rY">ใช่ (ฟอกไต)</button><button class="no" id="rN">ไม่ใช่</button></div></div>';
     res.innerHTML=h;
@@ -1874,7 +1885,7 @@ function runIV(age,wt,scr,cr){
   renderIV(d,cr,crR,flags,false);
 }
 function renderIV(d,cr,crR,flags,low){
-  var h='<div class="card"><div class="crcl">CrCl โดยประมาณ <b>'+crR+'</b> mL/min</div>';
+  var h='<div class="card">'+crLine(crR);
   flags.forEach(function(f){h+='<div class="flag '+f[0]+'">'+f[1]+'</div>';});
   if(low)h+='<div class="flag amber">ขนาดยาต่อไปนี้เป็นสูตรผู้ป่วย<b>ไม่ได้</b>ฟอกไต</div>';
   h+='<div class="medname" style="color:'+ivColor(d.id)+';margin-top:12px">'+esc(d.generic)+'</div>';
@@ -1913,7 +1924,7 @@ function runTB(age,wt,cr){
   var res=document.getElementById('result');
   // Scr-derived CrCl is authoritative; manual toggle only used when no Scr entered
   var eff, srcTxt;
-  if(cr!==null){ eff = (cr<30)?1:0; srcTxt='ประเมินจาก CrCl ที่คำนวณ = <b>'+cr.toFixed(2)+'</b> mL/min'; }
+  if(cr!==null){ eff = (cr<30)?1:0; srcTxt=(CR_MANUAL?'<span style="color:var(--redtx);font-weight:700">โหมดทดสอบ: CrCl ที่กรอกเอง</span> = <b>':'ประเมินจาก CrCl ที่คำนวณ = <b>')+cr.toFixed(2)+'</b> mL/min'; }
   else { eff = renal; srcTxt='ระบุสถานะไตโดยผู้ใช้ (ไม่ได้กรอก Scr)'; }
   var h='<div class="card">';
   h+='<div class="crcl" style="font-size:14px">'+srcTxt+'</div>';
