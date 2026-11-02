@@ -61,6 +61,7 @@
   .segbtns button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
   .segbtns button.on{background:var(--acc);color:var(--acctx)}
   #renal.off{opacity:.4;pointer-events:none}
+  .dim{opacity:.4;pointer-events:none} input:disabled{opacity:.4}
   .go{width:100%;height:56px;font-family:inherit;font-size:18px;font-weight:700;color:var(--acctx);background:var(--acc);border:3px solid var(--ink);border-radius:12px;cursor:pointer;margin-top:18px;box-shadow:5px 5px 0 var(--ink);transition:transform .07s,box-shadow .07s;display:flex;align-items:center;justify-content:center;gap:10px}
   .go:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
   .go:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
@@ -122,7 +123,7 @@
     </div>
     <label>อายุ (ปี)</label>
     <input type="number" id="age" inputmode="numeric" min="0" placeholder="เช่น 68">
-    <label>น้ำหนัก (กก.) — น้ำหนักจริง</label>
+    <label>น้ำหนัก (กก.) — น้ำหนักจริง <span class="opt" id="wtopt"></span></label>
     <input type="number" id="wt" inputmode="decimal" min="0" placeholder="เช่น 60">
     <label id="scrlab">Scr (mg/dL)</label>
     <input type="number" id="scr" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 1.2">
@@ -1760,7 +1761,11 @@ IV.sort(function(a,b){return a.generic.localeCompare(b.generic);});  // แส�
 var mode='iv', sex='M', renal=0;
 // admin/test mode: open the app with ?admin to type CrCl directly (overrides Cockcroft-Gault). Results get a red test label.
 var ADMIN=typeof location!=='undefined'&&/[?&]admin\b/.test(location.search), CR_MANUAL=false;
-if(ADMIN)document.getElementById('adminrow').classList.remove('hide');
+if(ADMIN){document.getElementById('adminrow').classList.remove('hide');document.getElementById('crclx').addEventListener('input',adminUI);}
+// typed CrCl replaces sex/age/Scr (greyed out); weight stays usable but is optional on the IV tab
+function adminUI(){var on=manualCr()!==null;document.getElementById('sex').classList[on?'add':'remove']('dim');
+  ['age','scr'].forEach(function(id){document.getElementById(id).disabled=on;});
+  document.getElementById('wtopt').textContent=(on&&mode==='iv')?'— ไม่บังคับในโหมดทดสอบ (ใส่เพื่อดูขนาดเป็น mg)':'';}
 function manualCr(){if(!ADMIN)return null;var v=num('crclx');return (v!==null&&v>=0)?v:null;}
 function crLine(crR){return '<div class="crcl">CrCl '+(CR_MANUAL?'(กรอกเอง)':'โดยประมาณ')+' <b>'+crR+'</b> mL/min</div>'+(CR_MANUAL?'<div class="flag red">โหมดทดสอบ: ใช้ CrCl ที่กรอกเอง ไม่ได้คำนวณจากผู้ป่วย</div>':'');}
 
@@ -1782,6 +1787,7 @@ function setMode(m){
   document.getElementById('result').innerHTML='';
   hasResult=false;   // เปลี่ยนแท็บ = เริ่มใหม่
   updateRenalUI();
+  adminUI();
 }
 function updateRenalUI(){
   if(mode!=='tb') return;
@@ -1840,15 +1846,16 @@ function runCalc(auto){
   var res=document.getElementById('result');res.innerHTML='';
   var age=num('age'),wt=num('wt'),scr=num('scr');
   var errs=[];
-  if(age===null)errs.push('กรอกอายุ');
-  if(wt===null||wt<=0)errs.push('กรอกน้ำหนัก');
+  var man=manualCr()!==null;   // admin: typed CrCl -> age not needed; weight optional on IV
+  if(age===null&&!man)errs.push('กรอกอายุ');
+  if(wt===null?!(man&&mode==='iv'):wt<=0)errs.push('กรอกน้ำหนัก');
   if(mode==='iv'&&(scr===null||scr<=0)&&manualCr()===null)errs.push('กรอก Scr');
   if(mode==='iv'&&!selDrug)errs.push('เลือกยาจากรายการ');
   if(errs.length){
     if(auto){return;}   // ระหว่างพิมพ์ ไม่ต้องขึ้นข้อความเตือน แค่ล้างผลลัพธ์
     res.innerHTML='<div class="card"><div class="flag red">'+esc(errs.join(' · '))+'</div></div>';return;
   }
-  if(age<16){
+  if(!man&&age<16){
     if(auto){return;}
     res.innerHTML='<div class="card"><div class="flag red">อายุ &lt;16 ปี — เครื่องมือนี้สำหรับผู้ใหญ่เท่านั้น'+(mode==='tb'?' (เด็ก/น้ำหนักน้อยใช้ตารางขนาดยาเด็ก)':' (บางรายการยาอาจมีเกณฑ์ต่างออกไป)')+'</div></div>';return;
   }
@@ -1871,8 +1878,8 @@ function runIV(age,wt,scr,cr){
   var crR=cr.toFixed(2);
   var flags=[];
   if(cr>120)flags.push(['amber','CrCl สูงผิดปกติ (&gt;120) — ตรวจสอบค่า Scr/น้ำหนัก และใช้วิจารณญาณ']);
-  if(wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
-  if(wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
+  if(!CR_MANUAL&&wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
+  if(!CR_MANUAL&&wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
   if(cr<10){
     var h='<div class="card">'+crLine(crR);
     h+='<div class="flag amber" style="margin-top:12px">CrCl &lt;10 — ผู้ป่วยได้รับการฟอกไต/RRT หรือไม่?</div>';
@@ -1897,9 +1904,9 @@ function renderIV(d,cr,crR,flags,low){
     if(rg.name)h+='<div class="regname">'+esc(rg.name)+'</div>';
     if(s){
       h+='<div class="band">ช่วง CrCl '+fmtBand(s)+'</div><div class="dose">'+esc(s.dose)+'</div>';
-      if(s.pairs){var wt=num('wt');   // e.g. amikacin 5 mg/kg q8h OR 7.5 mg/kg q12h — never mix the ranges
+      if(s.pairs&&num('wt')!==null){var wt=num('wt');   // e.g. amikacin 5 mg/kg q8h OR 7.5 mg/kg q12h — never mix the ranges
         h+='<div class="helper">คำนวณ ('+wt+' กก.): '+s.pairs.map(function(p){return Math.round(p[0]*wt)+' mg '+esc(p[1]);}).join(' หรือ ')+'</div>';}
-      else if(s.mgl!==''){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
+      else if(s.mgl!==''&&num('wt')!==null){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
         h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';
         // daily-total warning (vancomycin >4 g/day): upper dose × shortest interval in the band
         var qn=parseFloat((String(s.iv).match(/q\s*(\d+)/)||[])[1]);

@@ -48,4 +48,10 @@ global.location={search:'?admin',hash:''}; for(const k in els) delete els[k]; gl
  assert(r.includes('15-20 mg/kg q 12 h'),'typed CrCl 90 uses the 50-90 band');
  el('crclx').value=''; el('scr').value='1'; A.runCalc(false); r=el('result').innerHTML;
  assert(!r.includes('โหมดทดสอบ')&&r.includes('83.33'),'empty admin box falls back to Cockcroft-Gault');}
+// admin: only CrCl typed (age/weight/Scr blank) -> result without errors; mg lines skipped, mg/kg dose text kept
+{const A=global.__t; el('age').value=''; el('wt').value=''; el('scr').value=''; el('crclx').value='83';
+ for(const id of ['vancomycin','amikacin','cefotaxime']){A.setSel(id); A.runCalc(false); const r=el('result').innerHTML;
+  assert(!r.includes('กรอก')||r.includes('(กรอกเอง)'),id+': no missing-input error'); assert(!r.includes('NaN'),id+': no NaN');
+  assert(!r.includes('class="helper"'),id+': mg line skipped without weight'); assert(r.includes('โหมดทดสอบ'),id+': test label');}
+ A.setSel('amikacin'); el('wt').value='60'; A.runCalc(false); assert(el('result').innerHTML.includes('300 mg q 8 h หรือ 450 mg q 12 h'),'weight given -> mg line back');}
 console.log('all checks passed');
