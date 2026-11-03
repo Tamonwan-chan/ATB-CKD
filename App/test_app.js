@@ -39,6 +39,7 @@ cut('cefazolin',[50,49.99,30,29.99,10.01,10],[0,1,1,2,2,3],['≥50','30–<50','
 cut('ertapenem',[30.01,30],[0,1],['>30','≤30']);
 cut('penicillinG',[50.01,50,30.01,30,10,9.99],[0,1,1,2,2,3],['>50','>30–50','10–30','<10']);
 cut('amoxiclav',[30.01,30,10,9.99],[0,1,1,2],['>30','10–30','<10']);
+assert(run('amoxiclav',30,60).includes('CrCl = 30 พอดี'),'amox/clav overlap note at 30');
 // amikacin HDEI follows UpToDate like gentamicin (#2): >=60 q24h, 40-<60 q36h, 20-<40 q48h, <20 once
 const hdei=id=>T.IV.find(d=>d.id===id).regimens.find(g=>g.name.startsWith('HDEI')).segs;
 const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;
