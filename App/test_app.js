@@ -27,8 +27,11 @@ assert(!r.includes('g/วัน (เกิน'),'no warn at 60 kg');
 r=run('vancomycin',70,70);        // q12h: 1400*2 = 2.8 g, loading 20-25
 assert(r.includes('20-25 mg/kg ครั้งเดียว') && !r.includes('25-30 mg/kg ครั้งเดียว') && !r.includes('(เกิน'),'50-90 band');
 // other drugs unchanged: every non-vanco segment still has no loExc/hiInc and same match behaviour
-for(const d of T.IV) if(d.id!=='vancomycin') for(const g of d.regimens) for(const s of g.segs) assert(!s.loExc&&!s.hiInc,d.id);
+for(const d of T.IV) if(!['vancomycin','cefotaxime'].includes(d.id)) for(const g of d.regimens) for(const s of g.segs) assert(!s.loExc&&!s.hiInc,d.id);
 assert(!run('amikacin',100,70).includes('(เกิน'),'no warn on other drugs');
+// cefotaxime (#4): source ">50" none, ">10 to 50" adjust, "<=10" lowest
+for(const g of T.IV.find(d=>d.id==='cefotaxime').regimens){const b=cr=>T.matchSeg(g.segs,cr);
+  assert.deepEqual([50.01,50,10.01,10,0].map(b),[0,1,1,2,2],g.name); assert.deepEqual(g.segs.map(T.fmtBand),['>50','>10–50','≤10']);}
 // amikacin HDEI follows UpToDate like gentamicin (#2): >=60 q24h, 40-<60 q36h, 20-<40 q48h, <20 once
 const hdei=id=>T.IV.find(d=>d.id===id).regimens.find(g=>g.name.startsWith('HDEI')).segs;
 const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;
