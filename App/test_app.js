@@ -41,6 +41,9 @@ assert(!JSON.stringify(hdei('amikacin')).includes('ไม่แนะนำ'),'o
 for(const id of ['amikacin','gentamicin']){const c=T.IV.find(d=>d.id===id).comments;assert(c.includes('CrCl <40')&&c.includes('severe sepsis/shock'),id+' HDEI caution note');}
 // amikacin conventional CrCl >=60 (#3): helper shows the two valid pairs, never a merged 300-450 mg q8-12h range
 {const r=run('amikacin',83.33,60);assert(r.includes('300 mg q 8 h หรือ 450 mg q 12 h'),'amikacin pairs');assert(!r.includes('300-450 mg'),'no merged range');}
+// CrCl <10 (no HD/RRT on site): doses shown directly with the non-dialysis note, no yes/no prompt
+{const r=run('cefotaxime',5,60); assert(r.includes('1-2 g q 24 h')&&r.includes('ไม่ได้</b>ฟอกไต/RRT')&&!r.includes('id="rY"'),'crcl<10 direct');
+ assert(!run('cefotaxime',10,60).includes('ฟอกไต/RRT เท่านั้น'),'no note at 10');}
 // normal link: no admin box value is ever used
 assert(!run('vancomycin',100,60).includes('โหมดทดสอบ'),'no test label in normal mode');
 // admin mode (?admin): typed CrCl overrides Cockcroft-Gault, Scr not needed, result labelled as a test

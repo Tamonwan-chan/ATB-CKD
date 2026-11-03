@@ -84,9 +84,6 @@
   table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
   td{padding:8px 6px;border-top:2px solid var(--ink);vertical-align:top}
   tr.hit td{background:var(--hl);font-weight:700}
-  .rrt{display:flex;gap:10px;margin-top:4px}
-  .rrt button{flex:1;height:46px;font-family:inherit;font-size:16px;font-weight:600;border:2.5px solid var(--ink);border-radius:10px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);color:var(--ink)}
-  .rrt .yes{background:#fff} .rrt .no{background:var(--acc);color:var(--acctx)}
   .foot{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;padding:0 4px 10px}
   .credit{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.6;padding:10px 8px 30px;border-top:2px solid var(--ink);margin-top:6px}
   .credit b{font-weight:600;color:var(--ink)}
@@ -1892,21 +1889,12 @@ function runIV(age,wt,scr,cr){
   if(cr>120)flags.push(['amber','CrCl สูงผิดปกติ (&gt;120) — ตรวจสอบค่า Scr/น้ำหนัก และใช้วิจารณญาณ']);
   if(!CR_MANUAL&&wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
   if(!CR_MANUAL&&wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
-  if(cr<10){
-    var h='<div class="card">'+crLine(crR);
-    h+='<div class="flag amber" style="margin-top:12px">CrCl &lt;10 — ผู้ป่วยได้รับการฟอกไต/RRT หรือไม่?</div>';
-    h+='<div class="rrt"><button class="yes" id="rY">ใช่ (ฟอกไต)</button><button class="no" id="rN">ไม่ใช่</button></div></div>';
-    res.innerHTML=h;
-    document.getElementById('rY').onclick=function(){res.innerHTML='<div class="card"><div class="flag red">ผู้ป่วยฟอกไต/RRT: เครื่องมือนี้ไม่ครอบคลุมขนาดยาสำหรับการบำบัดทดแทนไต — โปรดส่งต่อ/ปรึกษาตามแนวทาง</div></div>';};
-    document.getElementById('rN').onclick=function(){renderIV(d,cr,crR,flags,true);};
-    return;
-  }
-  renderIV(d,cr,crR,flags,false);
+  renderIV(d,cr,crR,flags,cr<10);   // no HD/RRT on site: <10 shows non-dialysis doses with a note
 }
 function renderIV(d,cr,crR,flags,low){
   var h='<div class="card">'+crLine(crR);
   flags.forEach(function(f){h+='<div class="flag '+f[0]+'">'+f[1]+'</div>';});
-  if(low)h+='<div class="flag amber">ขนาดยาต่อไปนี้เป็นสูตรผู้ป่วย<b>ไม่ได้</b>ฟอกไต</div>';
+  if(low)h+='<div class="flag amber">CrCl &lt;10: ขนาดยานี้สำหรับผู้ป่วยที่<b>ไม่ได้</b>ฟอกไต/RRT เท่านั้น — หากผู้ป่วยต้องได้รับการฟอกไต ให้ส่งต่อ/ปรึกษาตามแนวทาง</div>';
   h+='<div class="medname" style="color:'+ivColor(d.id)+';margin-top:12px">'+esc(d.generic)+'</div>';
   if(d.strength)h+='<div class="usual">'+esc(d.strength)+'</div>';
   if(d.usual)h+='<div class="usual">ขนาดปกติ: '+esc(d.usual)+'</div>';
