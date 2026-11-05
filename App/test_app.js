@@ -27,7 +27,7 @@ assert(!r.includes('g/วัน (เกิน'),'no warn at 60 kg');
 r=run('vancomycin',70,70);        // q12h: 1400*2 = 2.8 g, loading 20-25
 assert(r.includes('20-25 mg/kg ครั้งเดียว') && !r.includes('25-30 mg/kg ครั้งเดียว') && !r.includes('(เกิน'),'50-90 band');
 // other drugs unchanged: every non-vanco segment still has no loExc/hiInc and same match behaviour
-for(const d of T.IV) if(!['vancomycin','cefotaxime','cefazolin','ertapenem','penicillinG','amoxiclav'].includes(d.id)) for(const g of d.regimens) for(const s of g.segs) assert(!s.loExc&&!s.hiInc,d.id);
+for(const d of T.IV) if(!['vancomycin','cefotaxime','cefazolin','ertapenem','penicillinG','amoxiclav','fosfomycin'].includes(d.id)) for(const g of d.regimens) for(const s of g.segs) assert(!s.loExc&&!s.hiInc,d.id);
 assert(!run('amikacin',100,70).includes('(เกิน'),'no warn on other drugs');
 // cefotaxime (#4): source ">50" none, ">10 to 50" adjust, "<=10" lowest
 for(const g of T.IV.find(d=>d.id==='cefotaxime').regimens){const b=cr=>T.matchSeg(g.segs,cr);
@@ -40,6 +40,23 @@ cut('ertapenem',[30.01,30],[0,1],['>30','≤30']);
 cut('penicillinG',[50.01,50,30.01,30,10,9.99],[0,1,1,2,2,3],['>50','>30–50','10–30','<10']);
 cut('amoxiclav',[30.01,30,10,9.99],[0,1,1,2],['>30','10–30','<10']);
 assert(run('amoxiclav',30,60).includes('CrCl = 30 พอดี'),'amox/clav overlap note at 30');
+// #7 added drugs. Fosfomycin rounds CrCl first (.5 up), so test through the real render; these age/wt/scr give the exact CrCl
+const exact=(age,wt,scr)=>{T.setSel('fosfomycin');el('age').value=String(age);el('wt').value=String(wt);el('scr').value=String(scr);T.runCalc(false);return el('result').innerHTML;};
+const has=(r,dose,label)=>assert(r.includes('class="dose">'+dose),label);   // the selected band only, not the hidden all-bands table
+has(exact(50,101,2.5),'ไม่ต้องปรับขนาด (CrCl &gt;50)','fosfo 50.5 -> >50');
+has(exact(50,81,2.5),'6 g ครั้งเดียว จากนั้น 4 g q 8 h','fosfo 40.5 -> 41-50');
+has(exact(50,84,10),'6 g ครั้งเดียว จากนั้น 3 g q 24 h','fosfo 10.5 -> 11-20');
+has(run('fosfomycin',50.4,60),'6 g ครั้งเดียว จากนั้น 4 g q 8 h','fosfo 50.4 -> 41-50');
+has(run('fosfomycin',40.4,60),'6 g ครั้งเดียว จากนั้น 3 g q 8 h','fosfo 40.4 -> 31-40');
+has(run('fosfomycin',30.4,60),'6 g ครั้งเดียว จากนั้น 5 g q 24 h','fosfo 30.4 -> 21-30');
+has(run('fosfomycin',20.4,60),'6 g ครั้งเดียว จากนั้น 3 g q 24 h','fosfo 20.4 -> 11-20');
+has(run('fosfomycin',10.4,60),"Manufacturer's labeling ไม่ครอบคลุม CrCl &lt;11",'fosfo 10.4 -> <11');
+assert.deepEqual(T.IV.find(d=>d.id==='fosfomycin').regimens[0].segs.map(T.fmtBand),['>50','41–50','31–40','21–30','11–20','<11']);
+for(const g of T.IV.find(d=>d.id==='imipenem').regimens){assert.deepEqual([60,59.99,30,29.99,15,14.99].map(c=>T.matchSeg(g.segs,c)),[0,1,1,2,2,3],g.name);
+  assert.deepEqual(g.segs.map(T.fmtBand),['≥60','30–<60','15–<30','<15']); assert(g.segs[3].dose.startsWith('ไม่ควรให้ยา'),g.name);}
+assert.deepEqual(T.IV.find(d=>d.id==='imipenem').regimens.map(g=>g.segs[1].dose),['250 mg q 6 h หรือ 500 mg q 8 h','500 mg q 8 h','500 mg q 6 h']);
+cut('levofloxacin',[50,49.99,20,19.99],[0,1,1,2],['≥50','20–<50','<20']);
+assert(!T.IV.some(d=>/cefoperazone/i.test(d.generic)),'Sulperazone stays archived');
 // amikacin HDEI follows UpToDate like gentamicin (#2): >=60 q24h, 40-<60 q36h, 20-<40 q48h, <20 once
 const hdei=id=>T.IV.find(d=>d.id===id).regimens.find(g=>g.name.startsWith('HDEI')).segs;
 const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;

@@ -1656,6 +1656,286 @@ var DATA = {
      ]
     }
    ]
+  },
+  {
+   "id": "fosfomycin",
+   "generic": "Fosfomycin",
+   "syn": "ฟอสโฟมัยซิน; Fosmicin",
+   "strength": "4 g",
+   "usual": "IV 12-24 g/วัน แบ่ง 2-4 ครั้ง (สูงสุด 8 g/ครั้ง); Manufacturer: 6 g q 8 h",
+   "basis": "fixed",
+   "adj": true,
+   "comments": "ปัดเศษ CrCl เป็นจำนวนเต็มก่อนเลือกช่วง (ทศนิยม ≥0.5 ปัดขึ้น, <0.5 ปัดลง). ขนาดอ้างอิง manufacturer's labeling เมื่อขนาดปกติคือ 6 g q 8 h. ทางเลือก (expert opinion) คิดเป็น % ของขนาดต่อวันตามข้อบ่งใช้: CrCl 30-<40 ~75%, 20-<30 ~60%, 10-<20 ~40%, <10 ~20% โดยขนาดนำเป็น 2 เท่าของ maintenance (ไม่เกิน 8 g).",
+   "monitor": "",
+   "roundCr": true,
+   "regimens": [
+    {
+     "name": "",
+     "segs": [
+      {
+       "lo": 50.0,
+       "hi": 9999.0,
+       "dose": "ไม่ต้องปรับขนาด (CrCl >50): 6 g q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": "",
+       "loExc": true
+      },
+      {
+       "lo": 41.0,
+       "hi": 50.0,
+       "dose": "6 g ครั้งเดียว จากนั้น 4 g q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": "",
+       "hiInc": true
+      },
+      {
+       "lo": 31.0,
+       "hi": 40.0,
+       "dose": "6 g ครั้งเดียว จากนั้น 3 g q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": "",
+       "hiInc": true
+      },
+      {
+       "lo": 21.0,
+       "hi": 30.0,
+       "dose": "6 g ครั้งเดียว จากนั้น 5 g q 24 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": "",
+       "hiInc": true
+      },
+      {
+       "lo": 11.0,
+       "hi": 20.0,
+       "dose": "6 g ครั้งเดียว จากนั้น 3 g q 24 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": "",
+       "hiInc": true
+      },
+      {
+       "lo": 0.0,
+       "hi": 11.0,
+       "dose": "Manufacturer's labeling ไม่ครอบคลุม CrCl <11. ทางเลือก (expert opinion): CrCl 10: ~40% ของขนาดต่อวัน แบ่ง 2-3 ครั้ง; CrCl <10: ~20% แบ่ง 1-2 ครั้ง",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "imipenem",
+   "generic": "Imipenem/cilastatin",
+   "syn": "อิมิพีเนม/ซิลาสแตติน; Tienam",
+   "strength": "500 mg (imipenem 500 + cilastatin 500)",
+   "usual": "IV 500 mg q 6 h (หรือ 1 g q 8 h / 1 g q 6 h)",
+   "basis": "fixed",
+   "adj": true,
+   "comments": "ขนาดยาคิดตามส่วน imipenem. ผู้ป่วย AKI อาจมี non-renal clearance เพิ่มขึ้น ติดตามการตอบสนอง หากไม่ดีขึ้นพิจารณาเพิ่มขนาดหรือเปลี่ยนยา.",
+   "monitor": "",
+   "regimens": [
+    {
+     "name": "500 mg q6h",
+     "segs": [
+      {
+       "lo": 60.0,
+       "hi": 9999.0,
+       "dose": "ไม่ต้องปรับขนาด (CrCl ≥60): 500 mg q 6 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 30.0,
+       "hi": 60.0,
+       "dose": "250 mg q 6 h หรือ 500 mg q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 15.0,
+       "hi": 30.0,
+       "dose": "250 mg q 8 h หรือ 500 mg q 12 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 0.0,
+       "hi": 15.0,
+       "dose": "ไม่ควรให้ยา ยกเว้นจะเริ่มฟอกไตภายใน 48 ชม. รพ. ไม่มีบริการฟอกไต: ส่งต่อหรือเลือกยาตัวอื่น",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "1 g q8h",
+     "segs": [
+      {
+       "lo": 60.0,
+       "hi": 9999.0,
+       "dose": "ไม่ต้องปรับขนาด (CrCl ≥60): 1 g q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 30.0,
+       "hi": 60.0,
+       "dose": "500 mg q 8 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 15.0,
+       "hi": 30.0,
+       "dose": "250 mg q 8 h หรือ 500 mg q 12 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 0.0,
+       "hi": 15.0,
+       "dose": "ไม่ควรให้ยา ยกเว้นจะเริ่มฟอกไตภายใน 48 ชม. รพ. ไม่มีบริการฟอกไต: ส่งต่อหรือเลือกยาตัวอื่น",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      }
+     ]
+    },
+    {
+     "name": "1 g q6h",
+     "segs": [
+      {
+       "lo": 60.0,
+       "hi": 9999.0,
+       "dose": "ไม่ต้องปรับขนาด (CrCl ≥60): 1 g q 6 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 30.0,
+       "hi": 60.0,
+       "dose": "500 mg q 6 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 15.0,
+       "hi": 30.0,
+       "dose": "250 mg q 6 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 0.0,
+       "hi": 15.0,
+       "dose": "ไม่ควรให้ยา ยกเว้นจะเริ่มฟอกไตภายใน 48 ชม. รพ. ไม่มีบริการฟอกไต: ส่งต่อหรือเลือกยาตัวอื่น",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "levofloxacin",
+   "generic": "Levofloxacin",
+   "syn": "เลโวฟลอกซาซิน; Cravit",
+   "strength": "750 mg",
+   "usual": "IV 750 mg q 24 h",
+   "basis": "fixed",
+   "adj": true,
+   "comments": "รพ. มีเฉพาะความแรง 750 mg. สูตรอื่น (ถ้ามี): 500 mg q 24 h -> CrCl 20-<50: 500 mg ครั้งแรก จากนั้น 250 mg q 24 h; CrCl <20: 500 mg ครั้งแรก จากนั้น 250 mg q 48 h. วัณโรค: CrCl >30 ไม่ต้องปรับ; CrCl <30 ให้ 750 mg หรือ 1 g สัปดาห์ละ 3 ครั้ง. การติดเชื้อรุนแรงและ GFR >80: อาจต้องใช้ 500 mg q 12 h เมื่อ MIC ≥0.5 mg/L.",
+   "monitor": "",
+   "regimens": [
+    {
+     "name": "",
+     "segs": [
+      {
+       "lo": 50.0,
+       "hi": 9999.0,
+       "dose": "ไม่ต้องปรับขนาด (CrCl ≥50): 750 mg q 24 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 20.0,
+       "hi": 50.0,
+       "dose": "750 mg q 48 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      },
+      {
+       "lo": 0.0,
+       "hi": 20.0,
+       "dose": "750 mg ครั้งแรก จากนั้น 500 mg q 48 h",
+       "mgl": "",
+       "mgh": "",
+       "iv": "",
+       "load": "",
+       "note": ""
+      }
+     ]
+    }
+   ]
   }
  ],
  "tb": [
@@ -1909,7 +2189,7 @@ function renderIV(d,cr,crR,flags,low){
   if(d.strength)h+='<div class="usual">'+esc(d.strength)+'</div>';
   if(d.usual)h+='<div class="usual">ขนาดปกติ: '+esc(d.usual)+'</div>';
   d.regimens.forEach(function(rg){
-    var i=matchSeg(rg.segs,cr),s=i>=0?rg.segs[i]:null;
+    var i=matchSeg(rg.segs,d.roundCr?Math.round(cr):cr),s=i>=0?rg.segs[i]:null;   // roundCr: source bands are whole numbers (.5 rounds up)
     h+='<div class="reg">';
     if(rg.name)h+='<div class="regname">'+esc(rg.name)+'</div>';
     if(s){

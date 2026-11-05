@@ -1,0 +1,51 @@
+{
+ "_note": "Cefoperazone/sulbactam, archived 2026-11-05 by PL's decision (not on formulary, in the reference table only). Source: Pfizer SULPERAZON label, same renal caps as MIMS; not UpToDate. To restore: append this object (without _note) to DATA.iv in docs/index.html, add matching rows to the drugs and rules tabs of App/IV-ATB-Renal-App_RULES.xlsx, add test checks, raise CACHE.",
+ "id": "cefoperazoneSulbactam",
+ "generic": "Cefoperazone/sulbactam",
+ "syn": "เซโฟเพอราโซน/ซัลแบคแทม; Sulperazon; Sulperazone",
+ "strength": "1.5 g (2:1)",
+ "usual": "2:1 (vial 1.5 g): IV 1.5-3 g/วัน แบ่งให้ 2 ครั้ง (สูงสุด 8 g/วัน); 1:1: IV 2-4 g/วัน แบ่งให้ 2 ครั้ง (สูงสุด 8 g/วัน)",
+ "basis": "fixed",
+ "adj": true,
+ "comments": "อ้างอิง: เอกสารกำกับยา Pfizer SULPERAZON และ MIMS. ตัวเลข vial เป็นเพดานสูงสุด ไม่ใช่ขนาดที่แนะนำ ให้ใช้ขนาดตามข้อบ่งใช้แต่ไม่เกินเพดานนี้. การปรับขนาดเป็นเพดานของ sulbactam เท่านั้น (cefoperazone ขับทางน้ำดี ไม่ต้องปรับ). 1 vial (1.5 g) = cefoperazone 1 g + sulbactam 0.5 g; sulbactam ไม่เกิน 4 g/วัน. ขนาดปกติ: แหล่งอ้างอิงไม่ตรงกัน - Pfizer และ MIMS ระบุ 1.5-3 g/วัน (ใช้ค่านี้), UpToDate concise ระบุ 3-6 g/วัน; เพดานต่อวัน Pfizer 8 g, MIMS/UpToDate 12 g. การติดเชื้อรุนแรง อาจต้องให้ cefoperazone เพิ่มแยกต่างหาก. ถ้ามีภาวะตับบกพร่องร่วมด้วย: cefoperazone ไม่เกิน 2 g/วัน และติดตามระดับยา.",
+ "monitor": "",
+ "regimens": [
+  {
+   "name": "",
+   "segs": [
+    {
+     "lo": 30.0,
+     "hi": 9999.0,
+     "dose": "ไม่ต้องปรับขนาด (CrCl >30)",
+     "mgl": "",
+     "mgh": "",
+     "iv": "",
+     "load": "",
+     "note": "",
+     "loExc": true
+    },
+    {
+     "lo": 15.0,
+     "hi": 30.0,
+     "dose": "sulbactam สูงสุด 1 g q 12 h (2 g/วัน) = ไม่เกิน 2 vial q 12 h",
+     "mgl": "",
+     "mgh": "",
+     "iv": "",
+     "load": "",
+     "note": "CrCl = 30 พอดี: เอกสารกำกับยา Pfizer ระบุทั้ง \"ปรับเมื่อ <30\" และ \"15 ถึง 30 ใช้เพดานนี้\" จึงใช้เพดานนี้ (ขนาดต่ำกว่า)",
+     "hiInc": true
+    },
+    {
+     "lo": 0.0,
+     "hi": 15.0,
+     "dose": "sulbactam สูงสุด 500 mg q 12 h (1 g/วัน) = ไม่เกิน 1 vial q 12 h",
+     "mgl": "",
+     "mgh": "",
+     "iv": "",
+     "load": "",
+     "note": ""
+    }
+   ]
+  }
+ ]
+}
