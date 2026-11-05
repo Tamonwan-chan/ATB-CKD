@@ -1,5 +1,5 @@
 {
- "_note": "Cefoperazone/sulbactam, archived 2026-11-05 by PL's decision (not on formulary, in the reference table only). Source: Pfizer SULPERAZON label, same renal caps as MIMS; not UpToDate. To restore: append this object (without _note) to DATA.iv in docs/index.html, add matching rows to the drugs and rules tabs of App/IV-ATB-Renal-App_RULES.xlsx, add test checks, raise CACHE.",
+ "_note": "Cefoperazone/sulbactam, archived 2026-11-05 by PL's decision (not on formulary). The reference-table row is saved in _archive/Cefoperazone-sulbactam_table-row.xlsx. Source: Pfizer SULPERAZON label, same renal caps as MIMS; not UpToDate. To restore: append this object (without _note) to DATA.iv in docs/index.html, add matching rows to the drugs and rules tabs of App/IV-ATB-Renal-App_RULES.xlsx, add test checks, raise CACHE.",
  "id": "cefoperazoneSulbactam",
  "generic": "Cefoperazone/sulbactam",
  "syn": "เซโฟเพอราโซน/ซัลแบคแทม; Sulperazon; Sulperazone",
