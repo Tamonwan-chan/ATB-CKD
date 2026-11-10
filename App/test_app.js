@@ -6,7 +6,7 @@ const els={};
 function el(id){return els[id]||(els[id]={id,value:'',innerHTML:'',textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},addEventListener(){},setAttribute(){},getAttribute(){return 'iv'},onclick:null});}
 global.document={body:el('body'),getElementById:el,querySelectorAll:()=>[],createElement:()=>el('x'+Math.random())};
 global.navigator={}; global.addEventListener=()=>{};
-const code=scripts.filter(s=>!s.includes('serviceWorker')).join('\n')+'\n;global.__t={runCalc,matchSeg,fmtBand,IV,setSel:function(v){selDrug=v}};';
+const code=scripts.filter(s=>!s.includes('serviceWorker')).join('\n')+'\n;global.__t={runCalc,runTB,matchSeg,fmtBand,IV,setSel:function(v){selDrug=v}};';
 (0,eval)(code);
 const T=global.__t;
 // CrCl via Cockcroft-Gault (male): (140-age)*wt/(72*scr); pick scr to hit an exact CrCl
@@ -57,6 +57,11 @@ for(const g of T.IV.find(d=>d.id==='imipenem').regimens){assert.deepEqual([60,59
 assert.deepEqual(T.IV.find(d=>d.id==='imipenem').regimens.map(g=>g.segs[1].dose),['250 mg q 6 h หรือ 500 mg q 8 h','500 mg q 8 h','500 mg q 6 h']);
 cut('levofloxacin',[50,49.99,20,19.99],[0,1,1,2],['≥50','20–<50','<20']);
 assert(!T.IV.some(d=>/cefoperazone/i.test(d.generic)),'Sulperazone stays archived');
+// #8 ethambutol: no mg cap (guideline 2564 and UpToDate state none), only 15-20 mg/kg/day
+const tb=wt=>{T.runTB(40,wt,null);return el('result').innerHTML;};
+assert(tb(90).includes('15-20 mg/kg × 90 กก. = 1350-1800 mg'),'E 90 kg uncapped');
+assert(tb(120).includes('15-20 mg/kg × 120 กก. = 1800-2400 mg')&&!tb(120).includes('(สูงสุด 1600 mg)'),'E 120 kg uncapped');
+assert(tb(120).includes('(สูงสุด 2000 mg)')&&tb(60).includes('ขนาดสำหรับผู้ใหญ่ (อายุ &gt;15 ปี) เท่านั้น'),'Z cap kept, adult note shown');
 // amikacin HDEI follows UpToDate like gentamicin (#2): >=60 q24h, 40-<60 q36h, 20-<40 q48h, <20 once
 const hdei=id=>T.IV.find(d=>d.id===id).regimens.find(g=>g.name.startsWith('HDEI')).segs;
 const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;
