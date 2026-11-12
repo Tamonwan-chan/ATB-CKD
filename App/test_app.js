@@ -43,6 +43,10 @@ assert(run('amoxiclav',30,60).includes('CrCl = 30 พอดี'),'amox/clav over
 // #7 added drugs. Fosfomycin rounds CrCl first (.5 up), so test through the real render; these age/wt/scr give the exact CrCl
 const exact=(age,wt,scr)=>{T.setSel('fosfomycin');el('age').value=String(age);el('wt').value=String(wt);el('scr').value=String(scr);T.runCalc(false);return el('result').innerHTML;};
 const has=(r,dose,label)=>assert(r.includes('class="dose">'+dose),label);   // the selected band only, not the hidden all-bands table
+// #11 amox/clav: every band in vial weight with amoxicillin in brackets (renal 500 mg = 600 mg = half a 1.2 g vial)
+has(run('amoxiclav',60,60),'ไม่ต้องปรับขนาด (CrCl &gt;30): IV 1.2 g q 8 h (amoxicillin 1 g)','amox >30');
+has(run('amoxiclav',20,60),'เริ่ม IV 1.2 g (amoxicillin 1 g) จากนั้น 600 mg (amoxicillin 500 mg = ครึ่งขวด) q 12 h','amox 10-30');
+has(run('amoxiclav',5,60),'เริ่ม IV 1.2 g (amoxicillin 1 g) จากนั้น 600 mg (amoxicillin 500 mg = ครึ่งขวด) q 12-24 h','amox <10');
 has(exact(50,101,2.5),'ไม่ต้องปรับขนาด (CrCl &gt;50)','fosfo 50.5 -> >50');
 has(exact(50,81,2.5),'6 g ครั้งเดียว จากนั้น 4 g q 8 h','fosfo 40.5 -> 41-50');
 has(exact(50,84,10),'6 g ครั้งเดียว จากนั้น 3 g q 24 h','fosfo 10.5 -> 11-20');
