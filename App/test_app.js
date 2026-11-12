@@ -6,7 +6,7 @@ const els={};
 function el(id){return els[id]||(els[id]={id,value:'',innerHTML:'',textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},addEventListener(){},setAttribute(){},getAttribute(){return 'iv'},onclick:null});}
 global.document={body:el('body'),getElementById:el,querySelectorAll:()=>[],createElement:()=>el('x'+Math.random())};
 global.navigator={}; global.addEventListener=()=>{};
-const code=scripts.filter(s=>!s.includes('serviceWorker')).join('\n')+'\n;global.__t={runCalc,runTB,matchSeg,fmtBand,IV,setSel:function(v){selDrug=v}};';
+const code=scripts.filter(s=>!s.includes('serviceWorker')).join('\n')+'\n;global.__t={runCalc,runTB,matchSeg,fmtBand,IV,setSel:function(v){selDrug=v},setSex:function(v){sex=v},bodyW};';
 (0,eval)(code);
 const T=global.__t;
 // CrCl via Cockcroft-Gault (male): (140-age)*wt/(72*scr); pick scr to hit an exact CrCl
@@ -66,6 +66,29 @@ const tb=wt=>{T.runTB(40,wt,null);return el('result').innerHTML;};
 assert(tb(90).includes('15-20 mg/kg × 90 กก. = 1350-1800 mg'),'E 90 kg uncapped');
 assert(tb(120).includes('15-20 mg/kg × 120 กก. = 1800-2400 mg')&&!tb(120).includes('(สูงสุด 1600 mg)'),'E 120 kg uncapped');
 assert(tb(120).includes('(สูงสุด 2000 mg)')&&tb(60).includes('ขนาดสำหรับผู้ใหญ่ (อายุ &gt;15 ปี) เท่านั้น'),'Z cap kept, adult note shown');
+// #6 adjusted body weight (UpToDate IBW/AdjBW calculator) only for drugs whose monograph says so
+{const b=T.bodyW(85,155,'F'); assert.equal(b.ibw.toFixed(1),'47.9'); assert.equal(b.adj.toFixed(1),'62.7'); assert.equal(b.bmi.toFixed(1),'35.4');
+ assert.equal(T.bodyW(110,170,'M').adj.toFixed(1),'83.6');
+ assert.equal(T.bodyW(85,150,'F').adj,null,'<152.4 cm: formula not used');
+ assert.equal(T.bodyW(55,155,'F').adj,null,'<=1.2 x IBW: no AdjBW');}
+const pt=(id,sx,age,wt,ht,scr)=>{T.setSel(id);T.setSex(sx);el('age').value=String(age);el('wt').value=String(wt);el('ht').value=ht===''?'':String(ht);el('scr').value=String(scr);T.runCalc(false);T.setSex('M');return el('result').innerHTML;};
+// woman 155 cm 85 kg, 60 y, Scr 1: CrCl actual 80.28, adjusted 59.23
+{let r=pt("amikacin","F",60,85,155,1); assert(r.includes('<b>59.23</b>')&&r.includes('adjusted BW 62.7 กก.'),'amikacin CrCl on AdjBW');
+ has(r,'5-7.5 mg/kg q 12 h','amikacin band from AdjBW CrCl'); assert(r.includes('× 62.7 กก.'),'amikacin mg/kg on AdjBW');
+ r=pt('gentamicin','F',60,85,155,1); assert(r.includes('<b>59.23</b>')&&r.includes('× 62.7 กก.'),'gentamicin AdjBW');
+ r=pt('colistin','F',60,85,155,1); assert(r.includes('<b>59.23</b>'),'colistin CrCl on AdjBW'); has(r,'245 mg CBA','colistin band');
+ r=pt('meropenem','F',60,85,155,1); assert(r.includes('<b>59.23</b>'),'meropenem BMI 35 -> AdjBW');
+ r=pt('vancomycin','F',60,85,155,1); assert(r.includes('<b>80.28</b>')&&!r.includes('adjusted BW'),'vancomycin stays on actual weight');}
+// man 170 cm 80 kg: AdjBW exists (>1.2 x IBW) but BMI 27.7 -> meropenem stays on actual, amikacin switches
+assert(pt('meropenem','M',60,80,170,1).includes('<b>88.89</b>'),'meropenem BMI <30 -> actual');
+assert(!pt('amikacin','M',60,80,170,1).includes('<b>88.89</b>'),'amikacin uses AdjBW regardless of BMI');
+assert(pt('amikacin','F',60,85,'',1).includes('ใส่ส่วนสูงเพื่อคำนวณ adjusted BW')&&pt('amikacin','F',60,85,'',1).includes('<b>80.28</b>'),'no height -> actual + hint');
+assert(pt('amikacin','F',60,85,150,1).includes('ส่วนสูง ≥152.4 ซม. เท่านั้น'),'short patient -> actual + note');
+// TB: ethambutol dosed on AdjBW when BMI >=30; actual-weight dose in a note; other TB drugs unchanged
+{pt('amikacin','F',60,85,155,1); T.runTB(60,85,null); const r=el('result').innerHTML;
+ assert(r.includes('15-20 mg/kg × 62.7 กก. = 941-1254 mg'),'E on AdjBW'); assert(r.includes('ถ้าใช้น้ำหนักจริง (85 กก.): 15-20 mg/kg = 1275-1700 mg'),'E actual in note');
+ assert(r.includes('20-30 mg/kg × 85 กก.'),'Z stays on actual weight');}
+el('ht').value='';
 // amikacin HDEI follows UpToDate like gentamicin (#2): >=60 q24h, 40-<60 q36h, 20-<40 q48h, <20 once
 const hdei=id=>T.IV.find(d=>d.id===id).regimens.find(g=>g.name.startsWith('HDEI')).segs;
 const ivAt=(segs,cr)=>segs[T.matchSeg(segs,cr)].iv;

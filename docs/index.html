@@ -122,6 +122,8 @@
     <input type="number" id="age" inputmode="numeric" min="0" placeholder="เช่น 68">
     <label>น้ำหนัก (กก.) — น้ำหนักจริง <span class="opt" id="wtopt"></span></label>
     <input type="number" id="wt" inputmode="decimal" min="0" placeholder="เช่น 60">
+    <label>ส่วนสูง (ซม.) <span class="opt">— ไม่บังคับ: ใช้คำนวณ adjusted BW ในผู้ป่วยอ้วน</span></label>
+    <input type="number" id="ht" inputmode="decimal" min="0" placeholder="เช่น 160">
     <label id="scrlab">Scr (mg/dL)</label>
     <input type="number" id="scr" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 1.2">
     <!-- admin/test mode: shown only when the link ends with ?admin -->
@@ -333,7 +335,8 @@ var DATA = {
       }
      ]
     }
-   ]
+   ],
+   "wtRule": "adj"
   },
   {
    "id": "amoxiclav",
@@ -945,7 +948,8 @@ var DATA = {
       }
      ]
     }
-   ]
+   ],
+   "wtRule": "adjCr"
   },
   {
    "id": "ertapenem",
@@ -995,7 +999,7 @@ var DATA = {
    "usual": "Conventional 3-5 mg/kg/วัน แบ่ง q8h; HDEI 5-7 mg/kg q24h",
    "basis": "mg_per_kg",
    "adj": true,
-   "comments": "คิดขนาดตามน้ำหนักจริง (ปรับถ้าอ้วน). ช่วงค่าเดิม ≥60/40-60/20-40/<20. HDEI (High-Dose Extended-Interval) = การให้ aminoglycoside ขนาดสูงแบบเว้นช่วงห่าง วันละครั้ง; Conventional = การให้แบบแบ่งหลายครั้งต่อวัน. HDEI ใช้ด้วยความระวังเมื่อ CrCl <40 แต่ยังอาจพิจารณาใช้ได้ โดยเฉพาะผู้ป่วย severe sepsis/shock หรือติดเชื้อแบคทีเรียแกรมลบดื้อยาหลายขนาน (multidrug-resistant gram-negative).",
+   "comments": "คิดขนาดตามน้ำหนักจริง (ถ้า TBW >1.2 เท่าของ IBW ใช้ adjusted BW). ช่วงค่าเดิม ≥60/40-60/20-40/<20. HDEI (High-Dose Extended-Interval) = การให้ aminoglycoside ขนาดสูงแบบเว้นช่วงห่าง วันละครั้ง; Conventional = การให้แบบแบ่งหลายครั้งต่อวัน. HDEI ใช้ด้วยความระวังเมื่อ CrCl <40 แต่ยังอาจพิจารณาใช้ได้ โดยเฉพาะผู้ป่วย severe sepsis/shock หรือติดเชื้อแบคทีเรียแกรมลบดื้อยาหลายขนาน (multidrug-resistant gram-negative).",
    "monitor": "ไม่มี TDM ในรพ.: ติดตามการทำงานของไตและการได้ยิน.",
    "regimens": [
     {
@@ -1148,7 +1152,8 @@ var DATA = {
       }
      ]
     }
-   ]
+   ],
+   "wtRule": "adj"
   },
   {
    "id": "meropenem",
@@ -1158,7 +1163,7 @@ var DATA = {
    "usual": "IV 1 g q 8 h (หรือ 2 g q 8 h)",
    "basis": "fixed",
    "adj": true,
-   "comments": "การให้แบบ infusion นาน 3 ชม. ช่วยให้ถึงเป้าหมายดีขึ้น.",
+   "comments": "การให้แบบ infusion นาน 3 ชม. ช่วยให้ถึงเป้าหมายดีขึ้น. BMI ≥30: คำนวณ CrCl (Cockcroft-Gault) ด้วย adjusted BW.",
    "monitor": "",
    "regimens": [
     {
@@ -1251,7 +1256,8 @@ var DATA = {
       }
      ]
     }
-   ]
+   ],
+   "wtRule": "adjCrBmi30"
   },
   {
    "id": "penicillinG",
@@ -2001,7 +2007,8 @@ var DATA = {
    "renalAdj": true,
    "renalDose": "15-20 มก./กก./วัน 3 วัน/สัปดาห์",
    "note": "ขนาดสำหรับผู้ใหญ่ (อายุ >15 ปี) เท่านั้น. ระวังพิษต่อตา (ตรวจการมองเห็น/ตาบอดสี). แนวทางฯ ไม่ระบุขนาดสูงสุดเป็น mg (ไม่เกิน 20 มก./กก./วัน); น้ำหนักมาก ขนาดจะสูงตามน้ำหนัก ให้ติดตามการมองเห็นใกล้ชิด",
-   "verify": ""
+   "verify": "",
+   "wtRule": "adjBmi30"
   },
   {
    "id": "levofloxacin",
@@ -2101,7 +2108,7 @@ function updateRenalUI(){
     hint.innerHTML='ยังไม่ได้กรอก Scr — เลือกสถานะไตเอง หรือกรอก Scr/อายุ/น้ำหนัก เพื่อให้คำนวณ CrCl อัตโนมัติ';
   }
 }
-['age','wt','scr','crclx'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){updateRenalUI();recalc();});});
+['age','wt','ht','scr','crclx'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){updateRenalUI();recalc();});});
 document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-m'));});});
 document.getElementById('devbtn').addEventListener('click',function(){document.getElementById('devcard').classList.toggle('hide');});
 document.querySelectorAll('#sex button').forEach(function(b){b.addEventListener('click',function(){
@@ -2138,6 +2145,25 @@ function num(id){var v=parseFloat(document.getElementById(id).value);return isNa
 function matchSeg(segs,cr){for(var i=0;i<segs.length;i++){var s=segs[i];if((s.loExc?cr>s.lo:cr>=s.lo)&&(s.hiInc?cr<=s.hi:cr<s.hi))return i;}return -1;}
 function fmtBand(s){if(s.lo<=0&&s.hi>=9999)return 'ทุกค่า';if(s.hi>=9999)return (s.loExc?'>':'≥')+s.lo;if(s.lo<=0)return (s.hiInc?'≤':'<')+s.hi;return (s.loExc?'>':'')+s.lo+'–'+(s.hiInc?'':'<')+s.hi;}
 
+// UpToDate IBW/AdjBW calculator: IBW = 50 (M) / 45.5 (F) + 2.3 kg per inch over 5 ft, valid only for height >=152.4 cm;
+// AdjBW = IBW + 0.4*(wt-IBW), given only when wt >1.2 x IBW (below that UpToDate uses actual weight / reports N/A)
+function bodyW(wt,ht,sx){var b={ht:ht,ibw:null,bmi:null,adj:null};
+  if(ht===null||ht<=0||wt===null)return b;
+  b.bmi=wt/Math.pow(ht/100,2);
+  if(ht<152.4)return b;
+  b.ibw=(sx==='F'?45.5:50)+2.3*(ht/2.54-60);
+  if(wt>1.2*b.ibw)b.adj=b.ibw+0.4*(wt-b.ibw);
+  return b;}
+// weight rules per drug (rules workbook column weight_rule): adj = CrCl + mg/kg; adjCr = CrCl only; adjCrBmi30 = CrCl only if BMI>=30; adjBmi30 = dose only if BMI>=30 (TB)
+function useAdj(rule,b){return !!rule&&b.adj!==null&&(rule==='adj'||rule==='adjCr'||b.bmi>=30);}
+function wtLine(rule,b,wt,used){if(!rule)return '';
+  var info=b.ibw!==null?' (IBW '+b.ibw.toFixed(1)+' กก., BMI '+b.bmi.toFixed(1)+')':'';
+  if(used)return '<div class="flag amber">น้ำหนักที่ใช้: <b>adjusted BW '+b.adj.toFixed(1)+' กก.</b>'+info+' แทนน้ำหนักจริง '+wt+' กก.</div>';
+  if(b.ht===null||b.ht<=0)return '<div class="note">ใส่ส่วนสูงเพื่อคำนวณ adjusted BW (ถ้าผู้ป่วยอ้วน)</div>';
+  if(b.ht<152.4)return '<div class="note">สูตร IBW ใช้กับส่วนสูง ≥152.4 ซม. เท่านั้น — ใช้น้ำหนักจริง</div>';
+  return '<div class="note">น้ำหนักที่ใช้: น้ำหนักจริง '+wt+' กก.'+info+'</div>';}
+var BW={ht:null,ibw:null,bmi:null,adj:null};
+
 var hasResult=false;   // true หลังคำนวณสำเร็จ 1 ครั้ง → แก้ค่าใดก็คำนวณใหม่อัตโนมัติ
 var AUTO=false;        // true = คำนวณใหม่อัตโนมัติ (ไม่ต้องเลื่อนหน้าจอ)
 function runCalc(auto){
@@ -2159,8 +2185,11 @@ function runCalc(auto){
     res.innerHTML='<div class="card"><div class="flag red">อายุ &lt;16 ปี — เครื่องมือนี้สำหรับผู้ใหญ่เท่านั้น'+(mode==='tb'?' (เด็ก/น้ำหนักน้อยใช้ตารางขนาดยาเด็ก)':' (บางรายการยาอาจมีเกณฑ์ต่างออกไป)')+'</div></div>';return;
   }
 
+  BW=bodyW(wt,num('ht'),sex);
+  var dsel=mode==='iv'?IV.find(function(x){return x.id===selDrug;}):null, wr=dsel?dsel.wtRule:'';
+  var wCr=(useAdj(wr,BW)&&wr!=='adjBmi30')?BW.adj:wt;   // CrCl weight: adjusted only where the drug's source says so
   var crcl=null;
-  if(scr!==null&&scr>0){ crcl=((140-age)*wt*(sex==='F'?0.85:1.0))/(72*scr); }
+  if(scr!==null&&scr>0){ crcl=((140-age)*wCr*(sex==='F'?0.85:1.0))/(72*scr); }
   var mc=manualCr(); CR_MANUAL=(mc!==null); if(CR_MANUAL)crcl=mc;
 
   hasResult=true;
@@ -2177,12 +2206,13 @@ function runIV(age,wt,scr,cr){
   var crR=cr.toFixed(2);
   var flags=[];
   if(cr>120)flags.push(['amber','CrCl สูงผิดปกติ (&gt;120) — ตรวจสอบค่า Scr/น้ำหนัก และใช้วิจารณญาณ']);
-  if(!CR_MANUAL&&wt>100)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
+  var used=useAdj(d.wtRule,BW);
+  if(!CR_MANUAL&&wt>100&&!used)flags.push(['amber','น้ำหนักมาก (&gt;100 กก.) — CG ด้วยน้ำหนักจริงอาจประเมิน CrCl สูงเกินจริง']);
   if(!CR_MANUAL&&wt<40)flags.push(['amber','น้ำหนักน้อย (&lt;40 กก.) — มวลกล้ามเนื้อน้อยอาจทำให้ CrCl ประเมินสูงเกินจริง']);
-  renderIV(d,cr,crR,flags,cr<10);   // no HD/RRT on site: <10 shows non-dialysis doses with a note
+  renderIV(d,cr,crR,flags,cr<10,used&&d.wtRule==='adj'?Math.round(BW.adj*10)/10:wt,wtLine(d.wtRule,BW,wt,used));   // no HD/RRT on site: <10 shows non-dialysis doses with a note
 }
-function renderIV(d,cr,crR,flags,low){
-  var h='<div class="card">'+crLine(crR);
+function renderIV(d,cr,crR,flags,low,dw,wl){
+  var h='<div class="card">'+crLine(crR)+(wl||'');
   flags.forEach(function(f){h+='<div class="flag '+f[0]+'">'+f[1]+'</div>';});
   if(low)h+='<div class="flag amber">CrCl &lt;10: ขนาดยานี้สำหรับผู้ป่วยที่<b>ไม่ได้</b>ฟอกไต/RRT เท่านั้น — หากผู้ป่วยต้องได้รับการฟอกไต ให้ส่งต่อ/ปรึกษาตามแนวทาง</div>';
   h+='<div class="medname" style="color:'+ivColor(d.id)+';margin-top:12px">'+esc(d.generic)+'</div>';
@@ -2194,9 +2224,9 @@ function renderIV(d,cr,crR,flags,low){
     if(rg.name)h+='<div class="regname">'+esc(rg.name)+'</div>';
     if(s){
       h+='<div class="band">ช่วง CrCl '+fmtBand(s)+'</div><div class="dose">'+esc(s.dose)+'</div>';
-      if(s.pairs&&num('wt')!==null){var wt=num('wt');   // e.g. amikacin 5 mg/kg q8h OR 7.5 mg/kg q12h — never mix the ranges
+      if(s.pairs&&dw!==null&&dw!==undefined){var wt=dw;   // e.g. amikacin 5 mg/kg q8h OR 7.5 mg/kg q12h — never mix the ranges
         h+='<div class="helper">คำนวณ ('+wt+' กก.): '+s.pairs.map(function(p){return Math.round(p[0]*wt)+' mg '+esc(p[1]);}).join(' หรือ ')+'</div>';}
-      else if(s.mgl!==''&&num('wt')!==null){var wt=num('wt'),lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
+      else if(s.mgl!==''&&dw!==null&&dw!==undefined){var wt=dw,lo=Math.round(s.mgl*wt),hi=Math.round(s.mgh*wt),mg=(s.mgl===s.mgh)?(lo+' mg'):(lo+'-'+hi+' mg');
         h+='<div class="helper">คำนวณ: '+s.mgl+(s.mgh!==s.mgl?('-'+s.mgh):'')+' mg/kg × '+wt+' กก. = '+mg+(s.iv?(' '+esc(s.iv)):'')+'</div>';
         // daily-total warning (vancomycin >4 g/day): upper dose × shortest interval in the band
         var qn=parseFloat((String(s.iv).match(/q\s*(\d+)/)||[])[1]);
@@ -2228,10 +2258,12 @@ function runTB(age,wt,cr){
   if(wt<30) h+='<div class="flag amber">น้ำหนัก &lt;30 กก. — แนวทางให้ใช้ตารางขนาดยาเด็ก (&lt;15 ปี)</div>';
   h+='<div style="font-size:15px;margin-top:6px">น้ำหนัก '+wt+' กก. · '+(eff?'<b>ปรับตามไต (CrCl&lt;30/HD)</b>':'การทำงานของไตปกติ')+'</div>';
 
-  var band = wt<35?'lt35':(wt<50?'b1':(wt<70?'b2':'b3'));
-  var bandTxt = wt<35?'<35 (คิดตามน้ำหนัก)':(wt<50?'35–49':(wt<70?'50–69':'>70 (คิดตามน้ำหนัก)'));
+  var wtA=wt;   // actual weight; ethambutol may swap in adjusted BW below
 
   TB.forEach(function(t){
+    var used=useAdj(t.wtRule,BW), wt0=wtA, wt=used?Math.round(BW.adj*10)/10:wt0;
+    var band = wt<35?'lt35':(wt<50?'b1':(wt<70?'b2':'b3'));
+    var bandTxt = wt<35?'<35 (คิดตามน้ำหนัก)':(wt<50?'35–49':(wt<70?'50–69':'>70 (คิดตามน้ำหนัก)'));
     h+='<div class="reg" style="border-left:4px solid '+(TBCOLOR[t.letter]||'#888')+'">';
     h+='<div class="medname" style="color:'+(TBCOLOR[t.letter]||'#333')+'">'+esc(t.name)+'</div>';
     if(t.strength) h+='<div class="usual">'+esc(t.strength)+'</div>';
@@ -2260,6 +2292,8 @@ function runTB(age,wt,cr){
       }
       if(wbased) h+=mgkgHelper(t,wt,'/วัน');
     }
+    h+=wtLine(t.wtRule,BW,wt0,used);
+    if(used){var ra=capRange(t,wt0);h+='<div class="note">ถ้าใช้น้ำหนักจริง ('+wt0+' กก.): '+t.mgl+'-'+t.mgh+' mg/kg = '+ra.txt+'/วัน. UpToDate: BMI ≥30 ให้ใช้ adjusted BW และตรวจระดับยาในเลือดถ้าทำได้</div>';}
     if(t.note) h+='<div class="note">'+esc(t.note)+'</div>';
     h+='</div>';
   });
